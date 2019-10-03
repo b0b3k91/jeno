@@ -19,6 +19,7 @@ namespace Jeno.Commands
         public RunJob(GitWrapper gitWrapper, HttpClient client, IConfiguration configuration)
         {
             Name = "run";
+
             var defaultKey = "default";
 
             var token = configuration.GetSection("authentication")["token"];
