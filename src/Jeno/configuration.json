@@ -1,0 +1,12 @@
+{
+  "authentication": {
+    "token": "5om3r4nd0mt0k3n"
+  },
+  "repositories": {
+    "firstExampleRepo": "firstExampleJob",
+    "secondExampleRepo": "secondExampleJob",
+    "thirdExampleRepo": "thirdExampleJob",
+    "fourthExampleRepo": "fourthExampleJob",
+    "default": "infastructureJob"
+  }
+}
