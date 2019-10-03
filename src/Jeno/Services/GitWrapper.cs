@@ -10,9 +10,9 @@ namespace Jeno.Services
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
 
-        public Uri GetRepoUrl(string repoPath)
+        public string GetRepoUrl(string repoPath)
         {
-            return new Uri(RunGit(_remoteAddressCommand, repoPath));
+            return RunGit(_remoteAddressCommand, repoPath);
         }
 
         public string GetCurrentBranch(string repoPath)
