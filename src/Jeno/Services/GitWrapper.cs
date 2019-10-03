@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Jeno
+namespace Jeno.Services
 {
     class GitWrapper
     {
