@@ -1,14 +1,9 @@
 using NUnit.Framework;
 
-namespace Tests
+namespace Jeno.UnitTests
 {
-    public class Tests
+    public class RunJobTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void PassDefaultRepository_RunInfrastructureJob()
         {
@@ -20,11 +15,13 @@ namespace Tests
         }
 
         [Test]
-        public void MissingTokenInConfiguration_InformUser()
+        public void MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
         {
-
         }
 
-
+        [Test]
+        public void PassJobParameters_RunJubWithCustomParameters()
+        {
+        }
     }
 }

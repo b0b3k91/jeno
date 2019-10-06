@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using Jeno.Core;
 
 namespace Jeno.Services
 {
-    class GitWrapper
+    class GitWrapper : IGitWrapper
     {
-        private const string _processName = "git";
-
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
 
@@ -18,7 +17,7 @@ namespace Jeno.Services
         public string GetCurrentBranch(string repoPath)
         {
             return RunGit(_branchCommand, repoPath)
-                .Remove(0,1)
+                .Remove(0, 1)
                 .Trim();
         }
 
@@ -28,7 +27,7 @@ namespace Jeno.Services
             {
                 process.StartInfo = new ProcessStartInfo
                 {
-                    FileName = _processName,
+                    FileName = "git",
                     Arguments = command,
                     WorkingDirectory = repoPath,
                     UseShellExecute = false,
