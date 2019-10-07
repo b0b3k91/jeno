@@ -62,7 +62,7 @@ namespace Jeno.Commands
                         if (string.IsNullOrEmpty(user))
                         {
                             _console.WriteLine("Login is undefined");
-                            _console.WriteLine($"Use \"jeno set {_loginKey}={{login}}\" command to save correct Jenkins address");
+                            _console.WriteLine($"Use \"jeno set {_loginKey}={{login}}\" command to save login");
                             return;
                         }
 
@@ -70,7 +70,7 @@ namespace Jeno.Commands
 
                         _console.WriteLine("User token is undefined");
                         _console.WriteLine($"To generate token go to {configurationUrl.AbsoluteUri}");
-                        _console.WriteLine($"Use \"jeno set {_tokenKey}={{token}}\" command to save correct Jenkins address");
+                        _console.WriteLine($"Use \"jeno set {_tokenKey}={{token}}\" command to save token");
                         return;
                     }
 

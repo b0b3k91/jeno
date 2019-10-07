@@ -30,8 +30,8 @@ namespace Jeno
 
             var app = new CommandLineApplication
             {
-                Name = "jeno",
-                Description = "CLI to manage Jenkins",
+                Name = "Jeno",
+                Description = "CLI Jenkins manager",
             };
 
             app.OnExecute(() =>
