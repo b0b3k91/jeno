@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jeno", "src\Jeno\Jeno.csproj", "{DEF174B3-14D7-4056-9E5A-B7FE413E0C82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jeno", "src\Jeno\Jeno.csproj", "{DEF174B3-14D7-4056-9E5A-B7FE413E0C82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jeno.UnitTests", "tests\Jeno.UnitTests\Jeno.UnitTests.csproj", "{E137AEC0-D464-4F20-A2F8-4716DF7FD498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jeno.UnitTests", "tests\Jeno.UnitTests\Jeno.UnitTests.csproj", "{E137AEC0-D464-4F20-A2F8-4716DF7FD498}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

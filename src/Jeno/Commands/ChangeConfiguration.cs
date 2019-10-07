@@ -1,5 +1,5 @@
 ﻿using Jeno.Core;
-using Microsoft.Extensions.CommandLineUtils;
+using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -15,9 +15,12 @@ namespace Jeno.Commands
         {
             Command = (app) =>
             {
-                string key = "token";
-                string value = "5om3r4nd0mt0k3n";
-                configuration[key] = value;
+                app.OnExecute(() =>
+                {
+                    string key = "token";
+                    string value = "5om3r4nd0mt0k3n";
+                    configuration[key] = value;
+                });
             };
         }
 

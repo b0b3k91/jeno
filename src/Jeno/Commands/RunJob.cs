@@ -1,40 +1,61 @@
 ﻿using Jeno.Core;
-using Jeno.Services;
-using Microsoft.Extensions.CommandLineUtils;
+using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace Jeno.Commands
 {
     class RunJob : IJenoCommand
     {
+        private readonly string _defaultKey = "defaultKey";
+        private readonly string _tokenKey = "token";
+        private readonly string _baseUrlKey = "baseUrl";
+
+        private readonly IGitWrapper _gitWrapper;
+        private readonly HttpClient _client;
+        private readonly IConfiguration _configuration;
+
         public string Name => "run";
 
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(GitWrapper gitWrapper, HttpClient client, IConfiguration configuration)
+        public RunJob(IGitWrapper gitWrapper, HttpClient client, IConfiguration configuration)
         {
+            _gitWrapper = gitWrapper;
+            _client = client;
+            _configuration = configuration;
 
-            var defaultKey = "default";
-
-            var token = configuration.GetSection("authentication")["token"];
-
-            var repositories = configuration.GetSection("repositories")
-                .AsEnumerable()
-                .ToDictionary(s => s.Key, s => s.Value);
-
-            var currentDir = System.IO.Directory.GetCurrentDirectory();
-
-            Command = async (CommandLineApplication app) =>
+            Command = (CommandLineApplication app) =>
             {
-                var currentRepo = gitWrapper.GetRepoUrl(currentDir);
-                var pipelineUrl = repositories.ContainsKey(currentRepo) ? repositories[currentRepo] : repositories[defaultKey];
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                app.OnExecute(() =>
+                {
+                   var token = configuration[_tokenKey];
+                   var baseUrl = new Uri(configuration[_baseUrlKey]);
 
-                var response = await client.PostAsync(pipelineUrl, null);
+                   var repositories = configuration.GetSection("repositories")
+                       .AsEnumerable()
+                       .Where(s => !string.IsNullOrEmpty(s.Value))
+                       .ToDictionary(s => s.Key, s => s.Value);
+
+                   var currentDir = Directory.GetCurrentDirectory();
+
+                   var currentRepo = gitWrapper.GetRepoUrl(currentDir);
+
+                   if (currentRepo.Contains("fatal"))
+                   {
+                       return;
+                   }
+
+                   var pipelineUrl = repositories.ContainsKey(currentRepo) ? repositories[currentRepo] : repositories[_defaultKey];
+                   client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                   client.PostAsync(pipelineUrl, null);
+                });
             };
         }
     }

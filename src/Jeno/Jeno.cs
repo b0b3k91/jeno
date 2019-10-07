@@ -1,42 +1,52 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using Jeno.Core;
 using Jeno.Services;
 using Jeno.Commands;
+using System.Net.Http;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace Jeno
 {
     class Jeno
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "configuration.json");
-
             var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile(configPath, optional: true, reloadOnChange: true)
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
             var container = new ServiceCollection()
+                .AddSingleton<IConsole>(PhysicalConsole.Singleton)
                 .AddSingleton<IGitWrapper, GitWrapper>()
+                .AddSingleton<HttpClient>()
+                .AddSingleton<IConfiguration>(config)
                 .AddTransient<IJenoCommand, RunJob>()
                 .AddTransient<IJenoCommand, ChangeConfiguration>()
-                .Configure<IConfiguration>(config)
                 .BuildServiceProvider();
 
-            var app = new CommandLineApplication(throwOnUnexpectedArg: false);
+            var app = new CommandLineApplication
+            {
+                Name = "jeno",
+                Description = "CLI to manage Jenkins",
+            };
+
+            app.OnExecute(() =>
+            {
+                app.ShowHelp();
+                return 1;
+            });
 
             var jenoCommands = container.GetServices<IJenoCommand>();
 
-            foreach(var jenoCommand in jenoCommands)
+            foreach (var jenoCommand in jenoCommands)
             {
                 app.Command(jenoCommand.Name, jenoCommand.Command);
             }
 
-            app.Execute(args);
+            return app.Execute(args);
         }
     }
 }
