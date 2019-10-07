@@ -7,14 +7,17 @@ namespace Jeno.Commands
 {
     class ChangeConfiguration : IJenoCommand
     {
-        public string Name => "set";
+        private readonly IConfiguration _configuration;
 
+        public string Name => "set";
         public Action<CommandLineApplication> Command { get; }
 
         public ChangeConfiguration(IConfiguration configuration)
         {
             Command = (app) =>
             {
+                app.Description = "Set parameter in app configuration";
+
                 app.OnExecute(() =>
                 {
                     string key = "token";

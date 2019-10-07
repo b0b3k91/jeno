@@ -6,6 +6,7 @@ using Jeno.Services;
 using Jeno.Commands;
 using System.Net.Http;
 using McMaster.Extensions.CommandLineUtils;
+using System.Linq;
 
 namespace Jeno
 {

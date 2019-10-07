@@ -12,49 +12,110 @@ namespace Jeno.Commands
 {
     class RunJob : IJenoCommand
     {
-        private readonly string _defaultKey = "defaultKey";
         private readonly string _tokenKey = "token";
-        private readonly string _baseUrlKey = "baseUrl";
+        private readonly string _baseUrlKey = "jenkinsUrl";
+        private readonly string _userKey = "login";
+
+        private readonly string _defaulJobtKey = "default";
 
         private readonly IGitWrapper _gitWrapper;
-        private readonly HttpClient _client;
         private readonly IConfiguration _configuration;
+        private readonly IConsole _console;
+        private readonly HttpClient _client;
 
         public string Name => "run";
-
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitWrapper gitWrapper, HttpClient client, IConfiguration configuration)
+        public RunJob(IGitWrapper gitWrapper, HttpClient client, IConfiguration configuration, IConsole console)
         {
             _gitWrapper = gitWrapper;
             _client = client;
             _configuration = configuration;
+            _console = console;
 
             Command = (CommandLineApplication app) =>
             {
+                app.Description = "Run job on Jenkins";
+
                 app.OnExecute(() =>
                 {
-                   var token = configuration[_tokenKey];
-                   var baseUrl = new Uri(configuration[_baseUrlKey]);
 
-                   var repositories = configuration.GetSection("repositories")
+                    //Validate jenkins address by creating new Uri instance
+                    try
+                    {
+                        new Uri(_configuration[_baseUrlKey]);
+                    }
+                    catch(ArgumentNullException)
+                    {
+                        _console.WriteLine("Jenkins address is undefined");
+                        _console.WriteLine($"Use \"jeno set {_baseUrlKey}={{url}}\" command to save correct Jenkins address");
+                        return;
+                    }
+                    catch (UriFormatException)
+                    {
+                        _console.WriteLine("Jenkins address is incorrect");
+                        _console.WriteLine($"Use \"jeno set {_baseUrlKey}={{url}}\" command to save correct Jenkins address");
+                        return;
+                    }
+
+                    var baseUrl = new Uri(_configuration[_baseUrlKey]);
+                    var token = _configuration[_tokenKey];
+
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        var user = _configuration[_userKey];
+
+                        if (string.IsNullOrEmpty(user))
+                        {
+                            _console.WriteLine("Login is undefined");
+                            _console.WriteLine($"Use \"jeno set {_userKey}={{login}}\" command to save correct Jenkins address");
+                            return;
+                        }
+
+                        var configurationUrl = new Uri(baseUrl, $"user/{user}/configure");
+
+                        _console.WriteLine("User token is undefined");
+                        _console.WriteLine($"To generate token go to {configurationUrl.AbsoluteUri}");
+                        _console.WriteLine($"Use \"jeno set {_tokenKey}={{token}}\" command to save correct Jenkins address");
+                        return;
+                    }
+
+                    var repositories = _configuration.GetSection("repositories")
                        .AsEnumerable()
                        .Where(s => !string.IsNullOrEmpty(s.Value))
-                       .ToDictionary(s => s.Key, s => s.Value);
+                       .ToDictionary(s => s.Key.Replace("repositories:", string.Empty), s => s.Value);
 
-                   var currentDir = Directory.GetCurrentDirectory();
+                    var currentRepo = gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
+                    var jobNumber = _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
-                   var currentRepo = gitWrapper.GetRepoUrl(currentDir);
+                    if (currentRepo.Contains("fatal") || jobNumber.Contains("fatal"))
+                    {
+                        _console.WriteLine(currentRepo.Replace("fatal", "Error"));
+                        return;
+                    }
 
-                   if (currentRepo.Contains("fatal"))
-                   {
-                       return;
-                   }
+                    var pipeline = repositories.ContainsKey(currentRepo)
+                            ? repositories[currentRepo]
+                            : repositories[_defaulJobtKey];
 
-                   var pipelineUrl = repositories.ContainsKey(currentRepo) ? repositories[currentRepo] : repositories[_defaultKey];
-                   client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    if (string.IsNullOrEmpty(pipeline))
+                    {
+                        _console.WriteLine("Cannot find pipeline name in configuration");
+                        return;
+                    }
 
-                   client.PostAsync(pipelineUrl, null);
+                    var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    try
+                    {
+                        client.PostAsync(jobUrl, null);
+                    }
+                    catch(Exception ex)
+                    {
+                        _console.WriteLine(ex.Message);
+                    }
                 });
             };
         }
