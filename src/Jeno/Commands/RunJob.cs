@@ -14,7 +14,7 @@ namespace Jeno.Commands
     {
         private readonly string _tokenKey = "token";
         private readonly string _baseUrlKey = "jenkinsUrl";
-        private readonly string _userKey = "login";
+        private readonly string _loginKey = "login";
 
         private readonly string _defaulJobtKey = "default";
 
@@ -45,15 +45,9 @@ namespace Jeno.Commands
                     {
                         new Uri(_configuration[_baseUrlKey]);
                     }
-                    catch(ArgumentNullException)
-                    {
-                        _console.WriteLine("Jenkins address is undefined");
-                        _console.WriteLine($"Use \"jeno set {_baseUrlKey}={{url}}\" command to save correct Jenkins address");
-                        return;
-                    }
                     catch (UriFormatException)
                     {
-                        _console.WriteLine("Jenkins address is incorrect");
+                        _console.WriteLine("Jenkins address is undefined or incorrect");
                         _console.WriteLine($"Use \"jeno set {_baseUrlKey}={{url}}\" command to save correct Jenkins address");
                         return;
                     }
@@ -63,12 +57,12 @@ namespace Jeno.Commands
 
                     if (string.IsNullOrEmpty(token))
                     {
-                        var user = _configuration[_userKey];
+                        var user = _configuration[_loginKey];
 
                         if (string.IsNullOrEmpty(user))
                         {
                             _console.WriteLine("Login is undefined");
-                            _console.WriteLine($"Use \"jeno set {_userKey}={{login}}\" command to save correct Jenkins address");
+                            _console.WriteLine($"Use \"jeno set {_loginKey}={{login}}\" command to save correct Jenkins address");
                             return;
                         }
 
