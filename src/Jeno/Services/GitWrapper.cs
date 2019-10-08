@@ -39,10 +39,13 @@ namespace Jeno.Services
 
                 while (!process.StandardOutput.EndOfStream)
                 {
-                    return process.StandardOutput.ReadLine();
+                    if(process.ExitCode == 0)
+                    {
+                        return process.StandardOutput.ReadLine();
+                    }
                 }
 
-                throw new Exception("Cannot get response from git process");
+                throw new Exception(process.StandardOutput.ReadLine());
             }
         }
     }

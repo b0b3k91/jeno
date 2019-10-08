@@ -6,7 +6,6 @@ using Jeno.Services;
 using Jeno.Commands;
 using System.Net.Http;
 using McMaster.Extensions.CommandLineUtils;
-using System.Linq;
 
 namespace Jeno
 {
@@ -20,24 +19,27 @@ namespace Jeno
                     .Build();
 
             var container = new ServiceCollection()
-                .AddSingleton<IConsole>(PhysicalConsole.Singleton)
+                .Configure<JenoConfiguration>(config.GetSection("jeno"))
+                .AddHttpClient()
+                .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton<IGitWrapper, GitWrapper>()
-                .AddSingleton<HttpClient>()
-                .AddSingleton<IConfiguration>(config)
                 .AddTransient<IJenoCommand, RunJob>()
                 .AddTransient<IJenoCommand, ChangeConfiguration>()
+                .AddTransient<IJenoCommand, ShowHelp>()
                 .BuildServiceProvider();
 
             var app = new CommandLineApplication
             {
-                Name = "Jeno",
-                Description = "CLI Jenkins manager",
+                Name = "jeno",
+                Description = "Jeno is a simple command line interface used to manage Jenkins jobs",
             };
 
             app.OnExecute(() =>
             {
-                app.ShowHelp();
-                return 1;
+                var console = container.GetService<IConsole>();
+                console.WriteLine(app.Description);
+                console.WriteLine("Use \"jeno help\" command to get more information");
+                return 0;
             });
 
             var jenoCommands = container.GetServices<IJenoCommand>();
