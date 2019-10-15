@@ -2,20 +2,31 @@ using NUnit.Framework;
 
 namespace Jeno.UnitTests
 {
+    [TestFixture]
     public class RunJobTests
     {
         [Test]
-        public void PassDefaultRepository_RunInfrastructureJob()
+        public void PassUndefinedRepository_RunInfrastructureJob()
         {
         }
 
         [Test]
-        public void PassSpecificRepository_RunJobSavedInConfiguration()
+        public void PassRepositoryDefinedInConfiguration_RunJobSavedInConfiguration()
+        {
+        }
+
+        [Test]
+        public void MissingTokenAndUsername_AskForUsername()
         {
         }
 
         [Test]
         public void MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
+        {
+        }
+
+        [Test]
+        public void RunJobWithoutParameters_RunJobWithDefaultConfiguration()
         {
         }
 

@@ -7,7 +7,6 @@ namespace Jeno.Commands
 {
     class ChangeConfiguration : IJenoCommand
     {
-
         private readonly IConsole _console;
 
         public string Name => "set";

@@ -13,13 +13,13 @@ namespace Jeno
     {
         public static int Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
             var container = new ServiceCollection()
-                .Configure<JenoConfiguration>(config.GetSection("jeno"))
+                .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
                 .AddHttpClient()
                 .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton<IGitWrapper, GitWrapper>()
