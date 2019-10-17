@@ -31,5 +31,17 @@ namespace Jeno.UnitTests
         {
 
         }
+
+        [Test]
+        public void UseDeleteParameter_RemovePassedRepositoryFromFonciguration()
+        {
+
+        }
+
+        [Test]
+        public void UseDeleteAliasParameter_RemovePassedRepositoryFromFonciguration()
+        {
+
+        }
     }
 }

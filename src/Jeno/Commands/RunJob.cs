@@ -13,7 +13,7 @@ namespace Jeno.Commands
 {
     class RunJob : IJenoCommand
     {
-        private readonly string _defaulJobtKey = "default";
+        private readonly string _defaulJobKey = "default";
 
         private readonly IGitWrapper _gitWrapper;
         private readonly IConsole _console;
@@ -44,7 +44,7 @@ namespace Jeno.Commands
                     catch (UriFormatException)
                     {
                         _console.WriteLine("Jenkins address is undefined or incorrect");
-                        _console.WriteLine("Use \"jeno set jenkinsUrl=[url]\" command to save correct Jenkins address");
+                        _console.WriteLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
                         return;
                     }
 
@@ -55,7 +55,7 @@ namespace Jeno.Commands
                         if (string.IsNullOrEmpty(_configuration.Username))
                         {
                             _console.WriteLine("Username is undefined");
-                            _console.WriteLine($"Use \"jeno set username=[username]\" command to save login");
+                            _console.WriteLine($"Use \"jeno set username:[username]\" command to save login");
                             return;
                         }
 
@@ -63,7 +63,7 @@ namespace Jeno.Commands
 
                         _console.WriteLine("User token is undefined");
                         _console.WriteLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
-                        _console.WriteLine($"Use \"jeno set token=[token]\" command to save authorization token");
+                        _console.WriteLine($"Use \"jeno set token:[token]\" command to save authorization token");
                         return;
                     }
 
@@ -75,11 +75,11 @@ namespace Jeno.Commands
 
                         var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
                                 ? _configuration.Repositories[currentRepo]
-                                : _configuration.Repositories[_defaulJobtKey];
+                                : _configuration.Repositories[_defaulJobKey];
 
                         if (string.IsNullOrEmpty(pipeline))
                         {
-                            _console.WriteLine("Cannot find choosen pipeline in8 configuration");
+                            _console.WriteLine("Cannot find choosen pipeline in configuration");
                             return;
                         }
 

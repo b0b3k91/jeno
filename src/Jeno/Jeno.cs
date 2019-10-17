@@ -23,10 +23,13 @@ namespace Jeno
                 .AddHttpClient()
                 .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton<IGitWrapper, GitWrapper>()
+                .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
                 .AddTransient<IJenoCommand, ChangeConfiguration>()
                 .AddTransient<IJenoCommand, ShowHelp>()
                 .BuildServiceProvider();
+
+            var console = container.GetService<IConsole>();
 
             var app = new CommandLineApplication
             {
@@ -36,7 +39,6 @@ namespace Jeno
 
             app.OnExecute(() =>
             {
-                var console = container.GetService<IConsole>();
                 console.WriteLine(app.Description);
                 console.WriteLine("Use \"jeno help\" command to get more information");
                 return 0;
@@ -49,7 +51,14 @@ namespace Jeno
                 app.Command(jenoCommand.Name, jenoCommand.Command);
             }
 
-            return app.Execute(args);
+            try
+            {
+                return app.Execute(args);
+            }
+            catch
+            {
+                return 1;
+            }
         }
     }
 }
