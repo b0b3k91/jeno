@@ -1,6 +1,7 @@
 ﻿using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
 using System;
+using System.Threading.Tasks;
 
 namespace Jeno.Commands
 {
@@ -12,9 +13,10 @@ namespace Jeno.Commands
         {
             app.Description = "List of app features and available commands";
 
-            app.OnExecute(() =>
+            app.OnExecuteAsync(async cancellationToken =>
             {
                 app.Parent.ShowHelp();
+                return 1;
             });
         };
     }

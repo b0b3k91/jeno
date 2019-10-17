@@ -3,8 +3,10 @@ using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace Jeno.Commands
 {
@@ -31,7 +33,7 @@ namespace Jeno.Commands
             {
                 app.Description = "Run job on Jenkins";
 
-                app.OnExecute(() =>
+                app.OnExecuteAsync(async cancellationToken =>
                 {
                     //Validate jenkins address by creating new Uri instance
                     try
@@ -42,7 +44,7 @@ namespace Jeno.Commands
                     {
                         _console.WriteLine("Jenkins address is undefined or incorrect");
                         _console.WriteLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
-                        return;
+                        return 1;
                     }
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
@@ -53,7 +55,7 @@ namespace Jeno.Commands
                         {
                             _console.WriteLine("Username is undefined");
                             _console.WriteLine($"Use \"jeno set username:[username]\" command to save login");
-                            return;
+                            return 1;
                         }
 
                         var configurationUrl = new Uri(baseUrl, $"user/{_configuration.Username}/configure");
@@ -61,11 +63,11 @@ namespace Jeno.Commands
                         _console.WriteLine("User token is undefined");
                         _console.WriteLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
                         _console.WriteLine($"Use \"jeno set token:[token]\" command to save authorization token");
-                        return;
+                        return 1;
                     }
 
-                    var currentRepo = gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
-                    var jobNumber = _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
+                    var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
+                    var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
                     var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
                             ? _configuration.Repositories[currentRepo]
@@ -74,13 +76,15 @@ namespace Jeno.Commands
                     if (string.IsNullOrEmpty(pipeline))
                     {
                         _console.WriteLine("Cannot find chosen pipeline in configuration");
-                        return;
+                        return 1;
                     }
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
 
                     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
-                    _client.PostAsync(jobUrl, null);
+                    var response = await _client.PostAsync(jobUrl, null);
+
+                    return response.StatusCode == HttpStatusCode.OK ? 0 : 1;
                 });
             };
         }

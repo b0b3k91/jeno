@@ -5,12 +5,13 @@ using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 
 namespace Jeno
 {
     internal class Jeno
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -52,7 +53,7 @@ namespace Jeno
 
             try
             {
-                return app.Execute(args);
+                return await app.ExecuteAsync(args);
             }
             catch (JenoException ex)
             {

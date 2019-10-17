@@ -1,9 +1,11 @@
-﻿namespace Jeno.Core
+﻿using System.Threading.Tasks;
+
+namespace Jeno.Core
 {
     internal interface IConfigurationSerializer
     {
-        JenoConfiguration ReadConfiguration();
+        Task<JenoConfiguration> ReadConfiguration();
 
-        bool SaveConfiguration(JenoConfiguration configuration);
+        Task<int> SaveConfiguration(JenoConfiguration configuration);
     }
 }

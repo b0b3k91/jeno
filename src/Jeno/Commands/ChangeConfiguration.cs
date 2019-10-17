@@ -26,7 +26,7 @@ namespace Jeno.Commands
                 var settings = app.Argument("options", "List of options to save in app configuration", true).Values;
                 var deleteOption = app.Option("-d|--delete", "Remove passed repository", CommandOptionType.NoValue);
 
-                app.OnExecute(() =>
+                app.OnExecuteAsync(async cancellationToken =>
                 {
                     if (settings.Any(s => !s.Contains(':')))
                     {
@@ -34,10 +34,10 @@ namespace Jeno.Commands
                         _console.WriteLine("Some of passed options have unhanded format:");
                         _console.WriteLine(incorrectOptions);
 
-                        return;
+                        return 1;
                     }
 
-                    var configuration = _serializer.ReadConfiguration();
+                    var configuration = await _serializer.ReadConfiguration();
 
                     var args = settings
                         .Where(s => s.Contains(':'))
@@ -80,7 +80,7 @@ namespace Jeno.Commands
                                     if (repositories.Any(s => !s.Contains('=')))
                                     {
                                         _console.WriteLine("Some of passed repositories have unhanded format");
-                                        break;
+                                        return 1;
                                     }
 
                                     var repoDictionary = repositories.ToDictionary(s => s.Split('=')[0], s => s.Split('=')[1]);
@@ -88,7 +88,7 @@ namespace Jeno.Commands
                                     if (repoDictionary.Keys.Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
                                         _console.WriteLine("Some of passed repositories have undefined origin address");
-                                        break;
+                                        return 1;
                                     }
 
                                     foreach (var repoKeyValue in repoDictionary)
@@ -100,11 +100,11 @@ namespace Jeno.Commands
 
                             default:
                                 _console.WriteLine($"Unsupported parameter: {arg.Key}");
-                                break;
+                                return 1;
                         }
                     }
 
-                    _serializer.SaveConfiguration(configuration);
+                    return await _serializer.SaveConfiguration(configuration);
                 });
             };
         }

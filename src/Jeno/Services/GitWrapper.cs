@@ -1,5 +1,6 @@
 ﻿using Jeno.Core;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Jeno.Services
 {
@@ -8,19 +9,20 @@ namespace Jeno.Services
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
 
-        public string GetRepoUrl(string repoPath)
+        public async Task<string> GetRepoUrl(string repoPath)
         {
-            return RunGit(_remoteAddressCommand, repoPath);
+            return await RunGit(_remoteAddressCommand, repoPath);
         }
 
-        public string GetCurrentBranch(string repoPath)
+        public async Task<string> GetCurrentBranch(string repoPath)
         {
-            return RunGit(_branchCommand, repoPath)
-                .Remove(0, 1)
-                .Trim();
+            var branch = await RunGit(_branchCommand, repoPath);
+
+            return branch.Remove(0, 1)
+            .Trim();
         }
 
-        private string RunGit(string command, string repoPath)
+        private async Task<string> RunGit(string command, string repoPath)
         {
             using (var process = new Process())
             {
@@ -40,7 +42,7 @@ namespace Jeno.Services
                 {
                     if (process.ExitCode == 0)
                     {
-                        return process.StandardOutput.ReadLine();
+                        return await process.StandardOutput.ReadLineAsync();
                     }
                 }
 

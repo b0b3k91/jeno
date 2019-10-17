@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Jeno.Services
 {
@@ -16,19 +17,20 @@ namespace Jeno.Services
         public ConfigurationSerializer()
         {
             _configuratrionPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-            _configuration = JsonConvert.DeserializeObject<Dictionary<string, JenoConfiguration>>(File.ReadAllText(_configuratrionPath));
         }
 
-        public JenoConfiguration ReadConfiguration()
+        public async Task<JenoConfiguration> ReadConfiguration()
         {
+            var json = await File.ReadAllTextAsync(_configuratrionPath);
+            _configuration = JsonConvert.DeserializeObject<Dictionary<string, JenoConfiguration>>(json);
             return _configuration[_jenoSection];
         }
 
-        public bool SaveConfiguration(JenoConfiguration configuration)
+        public async Task<int> SaveConfiguration(JenoConfiguration configuration)
         {
             _configuration[_jenoSection] = configuration;
-            File.WriteAllText(_configuratrionPath, JsonConvert.SerializeObject(_configuration));
-            return true;
+            await File.WriteAllTextAsync(_configuratrionPath, JsonConvert.SerializeObject(_configuration));
+            return 0;
         }
     }
 }

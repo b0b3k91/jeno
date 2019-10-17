@@ -1,9 +1,11 @@
-﻿namespace Jeno.Core
+﻿using System.Threading.Tasks;
+
+namespace Jeno.Core
 {
     internal interface IGitWrapper
     {
-        string GetRepoUrl(string repoPath);
+        Task<string> GetRepoUrl(string repoPath);
 
-        string GetCurrentBranch(string repoPath);
+        Task<string> GetCurrentBranch(string repoPath);
     }
 }
