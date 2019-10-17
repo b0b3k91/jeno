@@ -12,7 +12,7 @@ namespace Jeno.Commands
 
         public Action<CommandLineApplication> Command => app =>
         {
-            app.Description = "List of app options and available commands";
+            app.Description = "List of app features and available commands";
 
             app.OnExecute(() =>
             {

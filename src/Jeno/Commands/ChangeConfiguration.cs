@@ -32,7 +32,7 @@ namespace Jeno.Commands
                     if (settings.Any(s => !s.Contains(':')))
                     {
                         var incorrectOptions = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
-                        _console.WriteLine("Some of passed options have unhandled format:");
+                        _console.WriteLine("Some of passed options have unhanded format:");
                         _console.WriteLine(incorrectOptions);
 
                         return;
@@ -80,7 +80,7 @@ namespace Jeno.Commands
 
                                     if(repositories.Any(s => !s.Contains('=')))
                                     {
-                                        _console.WriteLine("Some of passed repositores have unhandled format");
+                                        _console.WriteLine("Some of passed repositories have unhanded format");
                                         break;
                                     }
 

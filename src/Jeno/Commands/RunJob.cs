@@ -67,31 +67,23 @@ namespace Jeno.Commands
                         return;
                     }
 
-                    try
+                    var currentRepo = gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
+                    var jobNumber = _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
+
+                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
+                            ? _configuration.Repositories[currentRepo]
+                            : _configuration.Repositories[_defaulJobKey];
+
+                    if (string.IsNullOrEmpty(pipeline))
                     {
-
-                        var currentRepo = gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
-                        var jobNumber = _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
-
-                        var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
-                                ? _configuration.Repositories[currentRepo]
-                                : _configuration.Repositories[_defaulJobKey];
-
-                        if (string.IsNullOrEmpty(pipeline))
-                        {
-                            _console.WriteLine("Cannot find choosen pipeline in configuration");
-                            return;
-                        }
-
-                        var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
-
-                        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
-                        _client.PostAsync(jobUrl, null);
+                        _console.WriteLine("Cannot find chosen pipeline in configuration");
+                        return;
                     }
-                    catch (Exception ex)
-                    {
-                        _console.WriteLine($"Error: {ex.Message}");
-                    }
+
+                    var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
+
+                    _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
+                    _client.PostAsync(jobUrl, null);
                 });
             };
         }

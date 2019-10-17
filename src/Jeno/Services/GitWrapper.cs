@@ -45,7 +45,7 @@ namespace Jeno.Services
                     }
                 }
 
-                throw new Exception(process.StandardOutput.ReadLine());
+                throw new JenoException(process.StandardOutput.ReadLine(), process.ExitCode);
             }
         }
     }

@@ -55,9 +55,10 @@ namespace Jeno
             {
                 return app.Execute(args);
             }
-            catch
+            catch(JenoException ex)
             {
-                return 1;
+                console.WriteLine($"Error: {ex.Message}");
+                return ex.ExitCode;
             }
         }
     }
