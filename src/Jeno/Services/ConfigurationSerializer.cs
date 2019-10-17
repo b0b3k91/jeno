@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Jeno.Core;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using Jeno.Core;
 
 namespace Jeno.Services
 {
-    class ConfigurationSerializer : IConfigurationSerializer
+    internal class ConfigurationSerializer : IConfigurationSerializer
     {
         private const string _jenoSection = "Jeno";
 

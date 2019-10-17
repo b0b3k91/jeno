@@ -1,17 +1,14 @@
 ﻿using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace Jeno.Commands
 {
-    class RunJob : IJenoCommand
+    internal class RunJob : IJenoCommand
     {
         private readonly string _defaulJobKey = "default";
 

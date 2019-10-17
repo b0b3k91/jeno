@@ -1,15 +1,14 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Jeno.Commands;
 using Jeno.Core;
 using Jeno.Services;
-using Jeno.Commands;
-using System.Net.Http;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Jeno
 {
-    class Jeno
+    internal class Jeno
     {
         public static int Main(string[] args)
         {
@@ -55,7 +54,7 @@ namespace Jeno
             {
                 return app.Execute(args);
             }
-            catch(JenoException ex)
+            catch (JenoException ex)
             {
                 console.WriteLine($"Error: {ex.Message}");
                 return ex.ExitCode;

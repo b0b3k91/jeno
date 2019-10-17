@@ -1,9 +1,9 @@
-﻿using System;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
+using System;
 
 namespace Jeno.Core
 {
-    interface IJenoCommand
+    internal interface IJenoCommand
     {
         string Name { get; }
         Action<CommandLineApplication> Command { get; }

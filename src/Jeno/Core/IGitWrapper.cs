@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Jeno.Core
+﻿namespace Jeno.Core
 {
-    interface IGitWrapper
+    internal interface IGitWrapper
     {
         string GetRepoUrl(string repoPath);
 

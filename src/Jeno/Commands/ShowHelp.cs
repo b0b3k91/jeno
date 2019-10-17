@@ -1,12 +1,10 @@
 ﻿using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Jeno.Commands
 {
-    class ShowHelp : IJenoCommand
+    internal class ShowHelp : IJenoCommand
     {
         public string Name => "help";
 

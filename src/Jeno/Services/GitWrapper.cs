@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Jeno.Core;
 using System.Diagnostics;
-using Jeno.Core;
 
 namespace Jeno.Services
 {
-    class GitWrapper : IGitWrapper
+    internal class GitWrapper : IGitWrapper
     {
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
@@ -39,7 +38,7 @@ namespace Jeno.Services
 
                 while (!process.StandardOutput.EndOfStream)
                 {
-                    if(process.ExitCode == 0)
+                    if (process.ExitCode == 0)
                     {
                         return process.StandardOutput.ReadLine();
                     }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Jeno.Core
 {
-    class JenoException : ApplicationException
+    internal class JenoException : ApplicationException
     {
         public int ExitCode { get; }
 

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Jeno.Core
 {
-    class JenoConfiguration
+    internal class JenoConfiguration
     {
         public string JenkinsUrl { get; set; }
         public string Username { get; set; }

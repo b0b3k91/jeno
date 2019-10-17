@@ -1,13 +1,12 @@
-﻿using System;
-using Microsoft.Extensions.Options;
+﻿using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
-using Jeno.Core;
-using System.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Jeno.Commands
 {
-    class ChangeConfiguration : IJenoCommand
+    internal class ChangeConfiguration : IJenoCommand
     {
         private readonly IConsole _console;
         private readonly IConfigurationSerializer _serializer;
@@ -78,7 +77,7 @@ namespace Jeno.Commands
                                         break;
                                     }
 
-                                    if(repositories.Any(s => !s.Contains('=')))
+                                    if (repositories.Any(s => !s.Contains('=')))
                                     {
                                         _console.WriteLine("Some of passed repositories have unhanded format");
                                         break;
@@ -92,7 +91,7 @@ namespace Jeno.Commands
                                         break;
                                     }
 
-                                    foreach(var repoKeyValue in repoDictionary)
+                                    foreach (var repoKeyValue in repoDictionary)
                                     {
                                         configuration.Repositories[repoKeyValue.Key] = repoKeyValue.Value;
                                     }
