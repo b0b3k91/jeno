@@ -44,7 +44,7 @@ namespace Jeno.Commands
                     {
                         _console.WriteLine("Jenkins address is undefined or incorrect");
                         _console.WriteLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
-                        return 1;
+                        return JenoCodes.DefaultError;
                     }
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
@@ -55,7 +55,7 @@ namespace Jeno.Commands
                         {
                             _console.WriteLine("Username is undefined");
                             _console.WriteLine($"Use \"jeno set username:[username]\" command to save login");
-                            return 1;
+                            return JenoCodes.DefaultError;
                         }
 
                         var configurationUrl = new Uri(baseUrl, $"user/{_configuration.Username}/configure");
@@ -63,7 +63,7 @@ namespace Jeno.Commands
                         _console.WriteLine("User token is undefined");
                         _console.WriteLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
                         _console.WriteLine($"Use \"jeno set token:[token]\" command to save authorization token");
-                        return 1;
+                        return JenoCodes.DefaultError;
                     }
 
                     var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
@@ -76,7 +76,7 @@ namespace Jeno.Commands
                     if (string.IsNullOrEmpty(pipeline))
                     {
                         _console.WriteLine("Cannot find chosen pipeline in configuration");
-                        return 1;
+                        return JenoCodes.DefaultError;
                     }
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
@@ -84,7 +84,7 @@ namespace Jeno.Commands
                     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
                     var response = await _client.PostAsync(jobUrl, null);
 
-                    return response.StatusCode == HttpStatusCode.OK ? 0 : 1;
+                    return response.StatusCode == HttpStatusCode.OK ? JenoCodes.Ok : JenoCodes.DefaultError;
                 });
             };
         }

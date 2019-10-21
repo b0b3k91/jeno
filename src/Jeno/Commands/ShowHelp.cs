@@ -16,7 +16,7 @@ namespace Jeno.Commands
             app.OnExecuteAsync(async cancellationToken =>
             {
                 app.Parent.ShowHelp();
-                return 1;
+                return JenoCodes.Ok;
             });
         };
     }

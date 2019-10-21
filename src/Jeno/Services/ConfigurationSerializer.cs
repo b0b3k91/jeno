@@ -26,11 +26,10 @@ namespace Jeno.Services
             return _configuration[_jenoSection];
         }
 
-        public async Task<int> SaveConfiguration(JenoConfiguration configuration)
+        public async Task SaveConfiguration(JenoConfiguration configuration)
         {
             _configuration[_jenoSection] = configuration;
             await File.WriteAllTextAsync(_configuratrionPath, JsonConvert.SerializeObject(_configuration));
-            return 0;
         }
     }
 }

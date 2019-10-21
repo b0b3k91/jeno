@@ -6,6 +6,6 @@ namespace Jeno.Core
     {
         Task<JenoConfiguration> ReadConfiguration();
 
-        Task<int> SaveConfiguration(JenoConfiguration configuration);
+        Task SaveConfiguration(JenoConfiguration configuration);
     }
 }

@@ -34,7 +34,7 @@ namespace Jeno.Commands
                         _console.WriteLine("Some of passed options have unhanded format:");
                         _console.WriteLine(incorrectOptions);
 
-                        return 1;
+                        return JenoCodes.DefaultError;
                     }
 
                     var configuration = await _serializer.ReadConfiguration();
@@ -80,7 +80,7 @@ namespace Jeno.Commands
                                     if (repositories.Any(s => !s.Contains('=')))
                                     {
                                         _console.WriteLine("Some of passed repositories have unhanded format");
-                                        return 1;
+                                        return JenoCodes.DefaultError;
                                     }
 
                                     var repoDictionary = repositories.ToDictionary(s => s.Split('=')[0], s => s.Split('=')[1]);
@@ -88,7 +88,7 @@ namespace Jeno.Commands
                                     if (repoDictionary.Keys.Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
                                         _console.WriteLine("Some of passed repositories have undefined origin address");
-                                        return 1;
+                                        return JenoCodes.DefaultError;
                                     }
 
                                     foreach (var repoKeyValue in repoDictionary)
@@ -100,11 +100,12 @@ namespace Jeno.Commands
 
                             default:
                                 _console.WriteLine($"Unsupported parameter: {arg.Key}");
-                                return 1;
+                                return JenoCodes.DefaultError;
                         }
                     }
 
-                    return await _serializer.SaveConfiguration(configuration);
+                    await _serializer.SaveConfiguration(configuration);
+                    return JenoCodes.Ok;
                 });
             };
         }

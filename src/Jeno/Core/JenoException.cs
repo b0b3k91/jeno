@@ -6,12 +6,12 @@ namespace Jeno.Core
     {
         public int ExitCode { get; }
 
-        public JenoException(int exitCode = 1)
+        public JenoException(int exitCode = JenoCodes.DefaultError)
         {
             ExitCode = exitCode;
         }
 
-        public JenoException(string message, int exitCode = 1) : base(message)
+        public JenoException(string message, int exitCode = JenoCodes.DefaultError) : base(message)
         {
             ExitCode = exitCode;
         }
