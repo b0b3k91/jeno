@@ -1,5 +1,6 @@
 ﻿using Jeno.Commands;
 using Jeno.Core;
+using Jeno.Interfaces;
 using Jeno.Services;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
@@ -37,11 +38,11 @@ namespace Jeno
                 Description = "Jeno is a simple command line interface used to manage Jenkins jobs",
             };
 
-            app.OnExecute(() =>
+            app.OnExecuteAsync(async token =>
             {
                 console.WriteLine(app.Description);
                 console.WriteLine("Use \"jeno help\" command to get more information");
-                return 0;
+                return JenoCodes.Ok;
             });
 
             var jenoCommands = container.GetServices<IJenoCommand>();

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Jeno.Core
+namespace Jeno.Interfaces
 {
     internal interface IGitWrapper
     {

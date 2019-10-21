@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using Jeno.Core;
+using System.Threading.Tasks;
 
-namespace Jeno.Core
+namespace Jeno.Interfaces
 {
     internal interface IConfigurationSerializer
     {
