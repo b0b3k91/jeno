@@ -31,7 +31,12 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public void UseDeleteAliasParameter_RemovePassedRepositoryFromFonciguration()
+        public void UseDeleteAliasParameter_RemovePassedRepositoryFromConniguration()
+        {
+        }
+
+        [Test]
+        public void TryDeteleDefaultJob_ThrowExcetpion()
         {
         }
     }

@@ -2,7 +2,7 @@
 
 namespace Jeno.Interfaces
 {
-    internal interface IGitWrapper
+    public interface IGitWrapper
     {
         Task<string> GetRepoUrl(string repoPath);
 

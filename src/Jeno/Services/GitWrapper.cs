@@ -19,8 +19,9 @@ namespace Jeno.Services
         {
             var branch = await RunGit(_branchCommand, repoPath);
 
-            return branch.Remove(0, 1)
-            .Trim();
+            return branch
+                .Remove(0, 1)
+                .Trim();
         }
 
         private async Task<string> RunGit(string command, string repoPath)
@@ -47,7 +48,7 @@ namespace Jeno.Services
                     }
                 }
 
-                throw new JenoException(process.StandardOutput.ReadLine(), process.ExitCode);
+                throw new JenoException(await process.StandardOutput.ReadLineAsync(), process.ExitCode);
             }
         }
     }

@@ -2,7 +2,7 @@
 
 namespace Jeno.Core
 {
-    internal class JenoException : ApplicationException
+    public class JenoException : ApplicationException
     {
         public int ExitCode { get; }
 

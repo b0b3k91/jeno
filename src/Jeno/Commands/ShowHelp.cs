@@ -1,11 +1,11 @@
 ﻿using Jeno.Core;
+using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.Threading.Tasks;
 
 namespace Jeno.Commands
 {
-    internal class ShowHelp : IJenoCommand
+    public class ShowHelp : IJenoCommand
     {
         public string Name => "help";
 
@@ -13,7 +13,7 @@ namespace Jeno.Commands
         {
             app.Description = "List of app features and available commands";
 
-            app.OnExecuteAsync(async cancellationToken =>
+            app.OnExecuteAsync(async token =>
             {
                 app.Parent.ShowHelp();
                 return JenoCodes.Ok;

@@ -1,22 +1,22 @@
 ﻿using Jeno.Core;
+using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Jeno.Commands
 {
-    internal class ChangeConfiguration : IJenoCommand
+    public class ChangeConfiguration : IJenoCommand
     {
-        private readonly IConsole _console;
         private readonly IConfigurationSerializer _serializer;
 
         public string Name => "set";
         public Action<CommandLineApplication> Command { get; }
 
-        public ChangeConfiguration(IConfigurationSerializer serializer, IConsole console)
+        public ChangeConfiguration(IConfigurationSerializer serializer)
         {
-            _console = console;
             _serializer = serializer;
 
             Command = (app) =>
@@ -26,15 +26,17 @@ namespace Jeno.Commands
                 var settings = app.Argument("options", "List of options to save in app configuration", true).Values;
                 var deleteOption = app.Option("-d|--delete", "Remove passed repository", CommandOptionType.NoValue);
 
-                app.OnExecuteAsync(async cancellationToken =>
+                app.OnExecuteAsync(async token =>
                 {
                     if (settings.Any(s => !s.Contains(':')))
                     {
                         var incorrectOptions = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
-                        _console.WriteLine("Some of passed options have unhanded format:");
-                        _console.WriteLine(incorrectOptions);
 
-                        return JenoCodes.DefaultError;
+                        var messageBuilder = new StringBuilder();
+                        messageBuilder.AppendLine("Some of passed options have unhandled format:");
+                        messageBuilder.AppendLine(incorrectOptions);
+
+                        throw new JenoException(messageBuilder.ToString());
                     }
 
                     var configuration = await _serializer.ReadConfiguration();
@@ -48,17 +50,14 @@ namespace Jeno.Commands
                         switch (arg.Key)
                         {
                             case "jenkinsUrl":
-                                _console.WriteLine($"Change token to: {arg.Value}");
                                 configuration.JenkinsUrl = arg.Value;
                                 break;
 
                             case "username":
-                                _console.WriteLine($"Change token to: {arg.Value}");
                                 configuration.Username = arg.Value;
                                 break;
 
                             case "token":
-                                _console.WriteLine($"Change token to: {arg.Value}");
                                 configuration.Token = arg.Value;
                                 break;
 
@@ -68,6 +67,9 @@ namespace Jeno.Commands
 
                                     if (Convert.ToBoolean(deleteOption.Value()))
                                     {
+                                        if (repositories.Any(s => s == "default"))
+                                            throw new JenoException("Cannot remove default job");
+
                                         foreach (var repository in repositories)
                                         {
                                             if (configuration.Repositories.ContainsKey(repository))
@@ -79,16 +81,14 @@ namespace Jeno.Commands
 
                                     if (repositories.Any(s => !s.Contains('=')))
                                     {
-                                        _console.WriteLine("Some of passed repositories have unhanded format");
-                                        return JenoCodes.DefaultError;
+                                        throw new JenoException("Some of passed repositories have unhandled format");
                                     }
 
                                     var repoDictionary = repositories.ToDictionary(s => s.Split('=')[0], s => s.Split('=')[1]);
 
                                     if (repoDictionary.Keys.Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
-                                        _console.WriteLine("Some of passed repositories have undefined origin address");
-                                        return JenoCodes.DefaultError;
+                                        throw new JenoException("Some of passed repositories have undefined origin address");
                                     }
 
                                     foreach (var repoKeyValue in repoDictionary)
@@ -99,8 +99,7 @@ namespace Jeno.Commands
                                 }
 
                             default:
-                                _console.WriteLine($"Unsupported parameter: {arg.Key}");
-                                return JenoCodes.DefaultError;
+                                throw new JenoException($"Unsupported parameter: {arg.Key}");
                         }
                     }
 

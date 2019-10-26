@@ -1,4 +1,5 @@
 ﻿using Jeno.Core;
+using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using System;
@@ -6,35 +7,41 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace Jeno.Commands
 {
-    internal class RunJob : IJenoCommand
+    public class RunJob : IJenoCommand
     {
         private readonly string _defaulJobKey = "default";
 
         private readonly IGitWrapper _gitWrapper;
-        private readonly IConsole _console;
         private readonly HttpClient _client;
         private readonly JenoConfiguration _configuration;
 
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitWrapper gitWrapper, IHttpClientFactory clientFactory, IOptions<JenoConfiguration> configuration, IConsole console)
+        public RunJob(IGitWrapper gitWrapper, IHttpClientFactory clientFactory, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
             _client = clientFactory.CreateClient();
             _configuration = configuration.Value;
-            _console = console;
+
 
             Command = (CommandLineApplication app) =>
             {
                 app.Description = "Run job on Jenkins";
 
-                app.OnExecuteAsync(async cancellationToken =>
+                app.OnExecuteAsync(async token =>
                 {
+                    var messageBuilder = new StringBuilder();
+
+                    if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
+                    {
+                        throw new JenoException("Default job for ");
+                    }
+
                     //Validate jenkins address by creating new Uri instance
                     try
                     {
@@ -42,9 +49,9 @@ namespace Jeno.Commands
                     }
                     catch (UriFormatException)
                     {
-                        _console.WriteLine("Jenkins address is undefined or incorrect");
-                        _console.WriteLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
-                        return JenoCodes.DefaultError;
+                        messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
+                        messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
+                        throw new JenoException(messageBuilder.ToString());
                     }
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
@@ -53,17 +60,18 @@ namespace Jeno.Commands
                     {
                         if (string.IsNullOrEmpty(_configuration.Username))
                         {
-                            _console.WriteLine("Username is undefined");
-                            _console.WriteLine($"Use \"jeno set username:[username]\" command to save login");
-                            return JenoCodes.DefaultError;
+
+                            messageBuilder.AppendLine("Username is undefined");
+                            messageBuilder.AppendLine("Use \"jeno set username:[username]\" command to save login");
+                            throw new JenoException(messageBuilder.ToString());
                         }
 
                         var configurationUrl = new Uri(baseUrl, $"user/{_configuration.Username}/configure");
 
-                        _console.WriteLine("User token is undefined");
-                        _console.WriteLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
-                        _console.WriteLine($"Use \"jeno set token:[token]\" command to save authorization token");
-                        return JenoCodes.DefaultError;
+                        messageBuilder.AppendLine("User token is undefined");
+                        messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
+                        messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
+                        throw new JenoException(messageBuilder.ToString());
                     }
 
                     var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
@@ -75,8 +83,7 @@ namespace Jeno.Commands
 
                     if (string.IsNullOrEmpty(pipeline))
                     {
-                        _console.WriteLine("Cannot find chosen pipeline in configuration");
-                        return JenoCodes.DefaultError;
+                        throw new JenoException("Cannot find chosen pipeline in configuration");
                     }
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");

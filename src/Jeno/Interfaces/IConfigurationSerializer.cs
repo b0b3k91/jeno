@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Jeno.Interfaces
 {
-    internal interface IConfigurationSerializer
+    public interface IConfigurationSerializer
     {
         Task<JenoConfiguration> ReadConfiguration();
 

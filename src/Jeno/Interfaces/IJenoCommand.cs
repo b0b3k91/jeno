@@ -1,9 +1,9 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 
-namespace Jeno.Core
+namespace Jeno.Interfaces
 {
-    internal interface IJenoCommand
+    public interface IJenoCommand
     {
         string Name { get; }
         Action<CommandLineApplication> Command { get; }

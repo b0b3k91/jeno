@@ -2,7 +2,7 @@
 
 namespace Jeno.Core
 {
-    internal class JenoConfiguration
+    public class JenoConfiguration
     {
         public string JenkinsUrl { get; set; }
         public string Username { get; set; }
