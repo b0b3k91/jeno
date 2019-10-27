@@ -43,7 +43,8 @@ namespace Jeno.Commands
 
                     var args = settings
                         .Where(s => s.Contains(':'))
-                        .ToDictionary(s => s.Split(':')[0].ToLower(), s => s.Split(':')[1]) ?? new Dictionary<string, string>();
+                        .Select(s => ParseSetting(s))
+                        .ToDictionary(k => k.Key, v =>  v.Value) ?? new Dictionary<string, string>();
 
                     foreach (var arg in args)
                     {
@@ -107,6 +108,16 @@ namespace Jeno.Commands
                     return JenoCodes.Ok;
                 });
             };
+        }
+
+        private KeyValuePair<string, string> ParseSetting(string setting)
+        {
+            return new KeyValuePair<string, string>
+                (
+                    //only first colon should be treated like separator, others (like the ones in url addresses) must be ignored.
+                    key: setting.Split(':')[0].ToLower(),
+                    value: string.Join(':', setting.Split(':').Skip(1))
+                );
         }
     }
 }
