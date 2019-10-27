@@ -112,10 +112,10 @@ namespace Jeno.Commands
 
         private KeyValuePair<string, string> ParseSetting(string setting)
         {
+            //only first colon should be treated like separator,
+            //others (like the ones in url addresses) must be ignored.
             return new KeyValuePair<string, string>
                 (
-                    //only first colon should be treated like separator,
-                    //others (like the ones in url addresses) must be ignored.
                     key: setting.Split(':').First().ToLower(),
                     value: string.Join(':', setting.Split(':').Skip(1))
                 );
