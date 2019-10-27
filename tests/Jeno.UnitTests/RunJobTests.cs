@@ -70,7 +70,7 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
             var code = await app.ExecuteAsync(new string[] { _command });
 
-            Assert.AreEqual(JenoCodes.Ok, code);
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
             var code = await app.ExecuteAsync(new string[] { _command });
 
-            Assert.AreEqual(JenoCodes.Ok, code);
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
         }
 
         [Test]
@@ -161,7 +161,8 @@ namespace Jeno.UnitTests
                 await app.ExecuteAsync(new string[] { _command });
             });
 
-            StringAssert.Contains("Username is undefined", exception.Message);
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.StartWith("Username is undefined"));
         }
 
         [Test]
@@ -208,8 +209,9 @@ namespace Jeno.UnitTests
                 await app.ExecuteAsync(new string[] { _command });
             });
 
-            StringAssert.Contains("User token is undefined", exception.Message);
-            StringAssert.Contains($"{_jenkinsUrl}/user/{_username}/configure", exception.Message);
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.StartWith("User token is undefined"));
+            Assert.That(exception.Message, Does.Contain($"{_jenkinsUrl}/user/{_username}/configure"));
         }
 
         [Test]
@@ -256,7 +258,8 @@ namespace Jeno.UnitTests
                 await app.ExecuteAsync(new string[] { _command });
             });
 
-            StringAssert.Contains("Jenkins address is undefined or incorrect", exception.Message);
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.StartWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -303,7 +306,8 @@ namespace Jeno.UnitTests
                 await app.ExecuteAsync(new string[] { _command });
             });
 
-            StringAssert.Contains("Jenkins address is undefined or incorrect", exception.Message);
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.StartWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
