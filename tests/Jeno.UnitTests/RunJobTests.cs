@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -16,24 +17,47 @@ namespace Jeno.UnitTests
     [TestFixture]
     public class RunJobTests
     {
+        private readonly string _jenkinsUrl = "http://jenkins_host:8080";
+        private readonly string _username = "jDoe";
+        private readonly string _token = "5om3r4nd0mt0k3n";
+        private readonly string _defaultKey = "default";
+        private readonly string _defaultJob = "defaultJob";
+
+        private readonly string _branch = "master";
+
         [Test]
         public async Task PassUndefinedRepository_RunDefaultJob()
         {
-            var configuration = GetDefaultConfiguration();
+            var undefinedRepository = "fifthExampleRepo";
+            
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                Username = _username,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
             var options = new Mock<IOptions<JenoConfiguration>>();
             options.Setup(c => c.Value)
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult("fifthExampleRepo"));
+                .Returns(Task.FromResult(undefinedRepository));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult("master"));
+                .Returns(Task.FromResult(_branch));
 
 
             var client = new MockHttpMessageHandler();
-            client.When("http://jenkins_host:8080/job/defaultJob/job/master")
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .Respond(HttpStatusCode.OK);
+
             var httpClientFactory = new Mock<IHttpClientFactory>();
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
@@ -48,46 +72,195 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public void PassRepositoryDefinedInConfiguration_RunJobSavedInConfiguration()
+        public async Task PassRepositoryDefinedInConfiguration_RunJobSavedInConfiguration()
         {
-        }
+            var exampleRepo = "firstExampleRepoUrl";
+            var exampleJob = "firstExampleJob";
 
-        [Test]
-        public void MissingTokenAndUsername_AskForUsername()
-        {
-        }
-
-        [Test]
-        public void MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
-        {
-        }
-
-        [Test]
-        public void RunJobWithoutParameters_RunJobWithDefaultConfiguration()
-        {
-        }
-
-        [Test]
-        public void PassJobParameters_RunJubWithCustomParameters()
-        {
-        }
-
-        private JenoConfiguration GetDefaultConfiguration()
-        {
-            return new JenoConfiguration
+            var configuration = new JenoConfiguration
             {
-                JenkinsUrl = "http://jenkins_host:8080",
-                Username = "jDoe",
-                Token = "5om3r4nd0mt0k3n",
+                JenkinsUrl = _jenkinsUrl,
+                Username = _username,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { exampleRepo, exampleJob },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(exampleRepo));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{exampleJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+            var code = await app.ExecuteAsync(new string[] { "run" });
+
+            Assert.AreEqual(JenoCodes.Ok, code);
+        }
+
+        [Test]
+        public async Task MissingTokenAndUsername_AskForUsername()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                Username = string.Empty,
+                Token = string.Empty,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey, _defaultJob },
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                var code = await app.ExecuteAsync(new string[] { "run" });
+            });
+
+            StringAssert.Contains("Username is undefined", exception.Message);
+        }
+
+        [Test]
+        public async Task MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                Username = _username,
+                Token = string.Empty,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
                     { "secondExampleRepoUrl", "secondExampleJob" },
                     { "thirdExampleRepoUrl", "thirdExampleJob" },
                     { "fourthExampleRepoUrl", "fourthExampleJob" },
-                    { "default", "defaultJob" },
+                    { _defaultKey, _defaultJob },
                 }
             };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                var code = await app.ExecuteAsync(new string[] { "run" });
+            });
+
+            StringAssert.Contains("User token is undefined", exception.Message);
+            StringAssert.Contains($"{_jenkinsUrl}/user/{_username}/configure", exception.Message);
+        }
+
+        [Test]
+        public async Task RunJobWithoutDefinedMainUrl_InformAboutIt()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = string.Empty,
+                Username = _username,
+                Token = string.Empty,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { "thirdExampleRepoUrl", "thirdExampleJob" },
+                    { "fourthExampleRepoUrl", "fourthExampleJob" },
+                    { _defaultKey, _defaultJob },
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                var code = await app.ExecuteAsync(new string[] { "run" });
+            });
+
+            StringAssert.Contains("Jenkins address is undefined or incorrect", exception.Message);
+        }
+
+        [Test]
+        public async Task PassJobParameters_RunJubWithCustomParameters()
+        {
+            Assert.Fail("Unimplemented feature");
         }
     }
 }

@@ -42,12 +42,7 @@ namespace Jeno.Commands
                         throw new JenoException("Default job for ");
                     }
 
-                    //Validate jenkins address by creating new Uri instance
-                    try
-                    {
-                        new Uri(_configuration.JenkinsUrl);
-                    }
-                    catch (UriFormatException)
+                    if(!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
                     {
                         messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
                         messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
