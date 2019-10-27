@@ -43,13 +43,13 @@ namespace Jeno.Commands
 
                     var args = settings
                         .Where(s => s.Contains(':'))
-                        .ToDictionary(s => s.Split(':')[0], s => s.Split(':')[1]) ?? new Dictionary<string, string>();
+                        .ToDictionary(s => s.Split(':')[0].ToLower(), s => s.Split(':')[1]) ?? new Dictionary<string, string>();
 
                     foreach (var arg in args)
                     {
                         switch (arg.Key)
                         {
-                            case "jenkinsUrl":
+                            case "jenkinsurl":
                                 configuration.JenkinsUrl = arg.Value;
                                 break;
 
@@ -65,7 +65,7 @@ namespace Jeno.Commands
                                 {
                                     var repositories = arg.Value.Split(',');
 
-                                    if (Convert.ToBoolean(deleteOption.Value()))
+                                    if (deleteOption.Values.Count > 0)
                                     {
                                         if (repositories.Any(s => s == "default"))
                                             throw new JenoException("Cannot remove default job");

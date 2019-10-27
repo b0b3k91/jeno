@@ -17,6 +17,8 @@ namespace Jeno.UnitTests
     [TestFixture]
     public class RunJobTests
     {
+        private readonly string _command = "run";
+
         private readonly string _jenkinsUrl = "http://jenkins_host:8080";
         private readonly string _username = "jDoe";
         private readonly string _token = "5om3r4nd0mt0k3n";
@@ -66,7 +68,7 @@ namespace Jeno.UnitTests
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
-            var code = await app.ExecuteAsync(new string[] { "run" });
+            var code = await app.ExecuteAsync(new string[] { _command });
 
             Assert.AreEqual(JenoCodes.Ok, code);
         }
@@ -112,7 +114,7 @@ namespace Jeno.UnitTests
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
-            var code = await app.ExecuteAsync(new string[] { "run" });
+            var code = await app.ExecuteAsync(new string[] { _command });
 
             Assert.AreEqual(JenoCodes.Ok, code);
         }
@@ -156,7 +158,7 @@ namespace Jeno.UnitTests
             {
                 var app = new CommandLineApplication();
                 app.Command(command.Name, command.Command);
-                var code = await app.ExecuteAsync(new string[] { "run" });
+                await app.ExecuteAsync(new string[] { _command });
             });
 
             StringAssert.Contains("Username is undefined", exception.Message);
@@ -203,7 +205,7 @@ namespace Jeno.UnitTests
             {
                 var app = new CommandLineApplication();
                 app.Command(command.Name, command.Command);
-                var code = await app.ExecuteAsync(new string[] { "run" });
+                await app.ExecuteAsync(new string[] { _command });
             });
 
             StringAssert.Contains("User token is undefined", exception.Message);
@@ -251,7 +253,7 @@ namespace Jeno.UnitTests
             {
                 var app = new CommandLineApplication();
                 app.Command(command.Name, command.Command);
-                var code = await app.ExecuteAsync(new string[] { "run" });
+                await app.ExecuteAsync(new string[] { _command });
             });
 
             StringAssert.Contains("Jenkins address is undefined or incorrect", exception.Message);
