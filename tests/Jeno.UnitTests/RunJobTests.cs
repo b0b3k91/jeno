@@ -260,6 +260,53 @@ namespace Jeno.UnitTests
         }
 
         [Test]
+        public async Task RunJobWithIncorrectJenkinsUrl_InformAboutIt()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = "incorrectUrl",
+                Username = _username,
+                Token = string.Empty,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { "thirdExampleRepoUrl", "thirdExampleJob" },
+                    { "fourthExampleRepoUrl", "fourthExampleJob" },
+                    { _defaultKey, _defaultJob },
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                await app.ExecuteAsync(new string[] { _command });
+            });
+
+            StringAssert.Contains("Jenkins address is undefined or incorrect", exception.Message);
+        }
+
+        [Test]
         public async Task PassJobParameters_RunJubWithCustomParameters()
         {
             Assert.Fail("Unimplemented feature");
