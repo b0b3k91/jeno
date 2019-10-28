@@ -39,7 +39,9 @@ namespace Jeno.Commands
 
                     if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
                     {
-                        throw new JenoException("Default job for ");
+                        messageBuilder.AppendLine("Missing default job");
+                        messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
+                        throw new JenoException(messageBuilder.ToString());
                     }
 
                     if(!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
@@ -76,12 +78,7 @@ namespace Jeno.Commands
                             ? _configuration.Repositories[currentRepo]
                             : _configuration.Repositories[_defaulJobKey];
 
-                    if (string.IsNullOrEmpty(pipeline))
-                    {
-                        throw new JenoException("Cannot find chosen pipeline in configuration");
-                    }
-
-                    var jobUrl = new Uri(baseUrl, $"job/{pipeline}/job/{jobNumber}");
+                    var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}");
 
                     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
                     var response = await _client.PostAsync(jobUrl, null);

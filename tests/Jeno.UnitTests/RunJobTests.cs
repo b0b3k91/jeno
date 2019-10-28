@@ -177,8 +177,6 @@ namespace Jeno.UnitTests
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
                     { "secondExampleRepoUrl", "secondExampleJob" },
-                    { "thirdExampleRepoUrl", "thirdExampleJob" },
-                    { "fourthExampleRepoUrl", "fourthExampleJob" },
                     { _defaultKey, _defaultJob },
                 }
             };
@@ -221,13 +219,11 @@ namespace Jeno.UnitTests
             {
                 JenkinsUrl = string.Empty,
                 Username = _username,
-                Token = string.Empty,
+                Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
                     { "secondExampleRepoUrl", "secondExampleJob" },
-                    { "thirdExampleRepoUrl", "thirdExampleJob" },
-                    { "fourthExampleRepoUrl", "fourthExampleJob" },
                     { _defaultKey, _defaultJob },
                 }
             };
@@ -269,13 +265,11 @@ namespace Jeno.UnitTests
             {
                 JenkinsUrl = "incorrectUrl",
                 Username = _username,
-                Token = string.Empty,
+                Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
                     { "secondExampleRepoUrl", "secondExampleJob" },
-                    { "thirdExampleRepoUrl", "thirdExampleJob" },
-                    { "fourthExampleRepoUrl", "fourthExampleJob" },
                     { _defaultKey, _defaultJob },
                 }
             };
@@ -308,6 +302,51 @@ namespace Jeno.UnitTests
 
             Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
             Assert.That(exception.Message, Does.StartWith("Jenkins address is undefined or incorrect"));
+        }
+
+        [Test]
+        public async Task RunJobWithUndefinedDefaultJob_InformAboutIt()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                Username = _username,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                await app.ExecuteAsync(new string[] { _command });
+            });
+
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.StartWith("Missing default job"));
         }
 
         [Test]
