@@ -57,7 +57,7 @@ namespace Jeno.UnitTests
 
 
             var client = new MockHttpMessageHandler();
-            client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
@@ -103,7 +103,7 @@ namespace Jeno.UnitTests
                 .Returns(Task.FromResult(_branch));
 
             var client = new MockHttpMessageHandler();
-            client.When($"{_jenkinsUrl}/job/{exampleJob}/job/{_branch}")
+            client.When($"{_jenkinsUrl}/job/{exampleJob}/{_branch}")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
