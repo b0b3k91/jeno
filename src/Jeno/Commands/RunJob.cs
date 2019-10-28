@@ -35,41 +35,9 @@ namespace Jeno.Commands
 
                 app.OnExecuteAsync(async token =>
                 {
-                    var messageBuilder = new StringBuilder();
-
-                    if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
-                    {
-                        messageBuilder.AppendLine("Missing default job");
-                        messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
-                        throw new JenoException(messageBuilder.ToString());
-                    }
-
-                    if(!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
-                    {
-                        messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
-                        messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
-                        throw new JenoException(messageBuilder.ToString());
-                    }
+                    ValidateConfiguration();
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
-
-                    if (string.IsNullOrEmpty(_configuration.Token))
-                    {
-                        if (string.IsNullOrEmpty(_configuration.Username))
-                        {
-
-                            messageBuilder.AppendLine("Username is undefined");
-                            messageBuilder.AppendLine("Use \"jeno set username:[username]\" command to save login");
-                            throw new JenoException(messageBuilder.ToString());
-                        }
-
-                        var configurationUrl = new Uri(baseUrl, $"user/{_configuration.Username}/configure");
-
-                        messageBuilder.AppendLine("User token is undefined");
-                        messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
-                        messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
-                        throw new JenoException(messageBuilder.ToString());
-                    }
 
                     var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
@@ -80,21 +48,59 @@ namespace Jeno.Commands
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}");
 
+
                     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
 
                     var response = await _client.PostAsync(jobUrl, null);
 
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
-                        messageBuilder.AppendLine($"Error: {response.ReasonPhrase}");
-                        messageBuilder.AppendLine($"Issue is probably caused by CSRF Protection");
-                        messageBuilder.AppendLine($"See more: https://wiki.jenkins.io/display/JENKINS/CSRF+Protection");
-                        throw new JenoException(messageBuilder.ToString());
+                        var message = new StringBuilder();
+                        message.AppendLine($"Error: {response.ReasonPhrase}");
+                        message.AppendLine($"Issue is probably caused by CSRF Protection");
+                        message.AppendLine($"See more: https://wiki.jenkins.io/display/JENKINS/CSRF+Protection");
+                        throw new JenoException(message.ToString());
                     }
 
                     return response.IsSuccessStatusCode ? JenoCodes.Ok : JenoCodes.DefaultError;
                 });
             };
+        }
+
+        private void ValidateConfiguration()
+        {
+            var messageBuilder = new StringBuilder();
+
+            if (!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
+            {
+                messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
+                messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
+                throw new JenoException(messageBuilder.ToString());
+            }
+
+            if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
+            {
+                messageBuilder.AppendLine("Missing default job");
+                messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
+                throw new JenoException(messageBuilder.ToString());
+            }
+
+            if (string.IsNullOrEmpty(_configuration.Username))
+            {
+                messageBuilder.AppendLine("Username is undefined");
+                messageBuilder.AppendLine("Use \"jeno set username:[username]\" command to save login");
+                throw new JenoException(messageBuilder.ToString());
+            }
+
+            if (string.IsNullOrEmpty(_configuration.Token))
+            {
+                var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.Username}/configure");
+
+                messageBuilder.AppendLine("User token is undefined");
+                messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
+                messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
+                throw new JenoException(messageBuilder.ToString());
+            }
         }
     }
 }
