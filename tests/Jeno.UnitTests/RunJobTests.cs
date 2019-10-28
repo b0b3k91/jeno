@@ -350,6 +350,57 @@ namespace Jeno.UnitTests
         }
 
         [Test]
+        public async Task TryRunJobOnJenkinsWithCSRFProtection_InformAboutIt()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                Username = _username,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}")
+                .Respond(s => Task.FromResult(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    ReasonPhrase = "No valid crumb was included in the request"
+                }));
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+
+            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+            {
+                var app = new CommandLineApplication();
+                app.Command(command.Name, command.Command);
+                var code = await app.ExecuteAsync(new string[] { _command });
+            });
+
+            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
+            Assert.That(exception.Message, Does.Contain("CSRF Protection"));
+        }
+
+        [Test]
         public async Task PassJobParameters_RunJubWithCustomParameters()
         {
             Assert.Fail("Unimplemented feature");

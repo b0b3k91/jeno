@@ -81,9 +81,18 @@ namespace Jeno.Commands
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}");
 
                     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
+
                     var response = await _client.PostAsync(jobUrl, null);
 
-                    return response.StatusCode == HttpStatusCode.OK ? JenoCodes.Ok : JenoCodes.DefaultError;
+                    if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
+                    {
+                        messageBuilder.AppendLine($"Error: {response.ReasonPhrase}");
+                        messageBuilder.AppendLine($"Issue is probably caused by CSRF Protection");
+                        messageBuilder.AppendLine($"See more: https://wiki.jenkins.io/display/JENKINS/CSRF+Protection");
+                        throw new JenoException(messageBuilder.ToString());
+                    }
+
+                    return response.IsSuccessStatusCode ? JenoCodes.Ok : JenoCodes.DefaultError;
                 });
             };
         }
