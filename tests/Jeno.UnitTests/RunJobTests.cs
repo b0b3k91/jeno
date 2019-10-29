@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -150,8 +149,8 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
-            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
-            .And.Property("Message").StartsWith("Jenkins address is undefined or incorrect"));
+            .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+            .And.Property(nameof(JenoException.Message)).StartsWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -191,8 +190,8 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
-            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
-            .And.Property("Message").StartsWith("Jenkins address is undefined or incorrect"));
+            .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+            .And.Property(nameof(JenoException.Message)).StartsWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -231,8 +230,8 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
-            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
-            .And.Property("Message").StartsWith("Missing default job"));
+            .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+            .And.Property(nameof(JenoException.Message)).StartsWith("Missing default job"));
         }
 
         [Test]
@@ -276,8 +275,8 @@ namespace Jeno.UnitTests
             app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
-            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
-            .And.Property("Message").Contains("CSRF Protection"));
+            .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+            .And.Property(nameof(JenoException.Message)).Contains("CSRF Protection"));
         }
 
         [Test]
