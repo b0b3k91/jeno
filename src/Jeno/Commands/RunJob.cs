@@ -48,9 +48,6 @@ namespace Jeno.Commands
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}");
 
-
-                    _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.Token);
-
                     var response = await _client.PostAsync(jobUrl, null);
 
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
@@ -82,23 +79,6 @@ namespace Jeno.Commands
             {
                 messageBuilder.AppendLine("Missing default job");
                 messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
-                throw new JenoException(messageBuilder.ToString());
-            }
-
-            if (string.IsNullOrEmpty(_configuration.Username))
-            {
-                messageBuilder.AppendLine("Username is undefined");
-                messageBuilder.AppendLine("Use \"jeno set username:[username]\" command to save login");
-                throw new JenoException(messageBuilder.ToString());
-            }
-
-            if (string.IsNullOrEmpty(_configuration.Token))
-            {
-                var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.Username}/configure");
-
-                messageBuilder.AppendLine("User token is undefined");
-                messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
-                messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
                 throw new JenoException(messageBuilder.ToString());
             }
         }

@@ -5,8 +5,11 @@ using Jeno.Services;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using System;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
 
 namespace Jeno
 {
@@ -21,7 +24,15 @@ namespace Jeno
 
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
-                .AddHttpClient()
+                .AddHttpClient(client => 
+                    client.ConfigurePrimaryHttpMessageHandler(() =>
+                    {
+                        return new HttpClientHandler()
+                        {
+                            UseDefaultCredentials = true,
+                            Credentials = CredentialCache.DefaultNetworkCredentials
+                        };
+                    }))
                 .AddSingleton<IGitWrapper, GitWrapper>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
@@ -42,9 +53,7 @@ namespace Jeno
                 return JenoCodes.Ok;
             });
 
-            var jenoCommands = container.GetServices<IJenoCommand>();
-
-            foreach (var jenoCommand in jenoCommands)
+            foreach (var jenoCommand in container.GetServices<IJenoCommand>())
             {
                 app.Command(jenoCommand.Name, jenoCommand.Command);
             }

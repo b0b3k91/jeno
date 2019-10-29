@@ -54,14 +54,6 @@ namespace Jeno.Commands
                                 configuration.JenkinsUrl = arg.Value;
                                 break;
 
-                            case "username":
-                                configuration.Username = arg.Value;
-                                break;
-
-                            case "token":
-                                configuration.Token = arg.Value;
-                                break;
-
                             case "repository":
                                 {
                                     var repositories = arg.Value.Split(',');
