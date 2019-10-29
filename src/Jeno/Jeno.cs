@@ -24,15 +24,16 @@ namespace Jeno
 
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
-                .AddHttpClient(client => 
-                    client.ConfigurePrimaryHttpMessageHandler(() =>
-                    {
-                        return new HttpClientHandler()
-                        {
-                            UseDefaultCredentials = true,
-                            Credentials = CredentialCache.DefaultNetworkCredentials
-                        };
-                    }))
+                .AddHttpClient()
+                //client => 
+                //    client.ConfigurePrimaryHttpMessageHandler(() =>
+                //    {
+                //        return new HttpClientHandler()
+                //        {
+                //            UseDefaultCredentials = true,
+                //            Credentials = CredentialCache.DefaultNetworkCredentials
+                //        };
+                //    })
                 .AddSingleton<IGitWrapper, GitWrapper>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
