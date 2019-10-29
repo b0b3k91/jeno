@@ -164,18 +164,14 @@ namespace Jeno.UnitTests
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
-            {
-                await app.ExecuteAsync(args);
-            });
-
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.StartWith("Unsupported parameter"));
-            Assert.That(exception.Message, Does.Contain(parameter));
+            Assert.That(async () => await app.ExecuteAsync(args), Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").StartsWith("Unsupported parameter")
+            .And.Property("Message").Contains(parameter));
         }
 
         [Test]
-        public void TryDeteleDefaultJob_ThrowExcetpion()
+        public void TryDeteleDefaultJob_ThrowException()
         {
             var deletedRepository = "default";
             var deleteOption = "-d";
@@ -190,13 +186,9 @@ namespace Jeno.UnitTests
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
-            {
-                await app.ExecuteAsync(args);
-            });
-
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.Contain("Cannot remove default job"));
+            Assert.That(async () => await app.ExecuteAsync(args), Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").Contains("Cannot remove default job"));
         }
 
         private JenoConfiguration GetDefaultConfiguration()

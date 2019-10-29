@@ -146,14 +146,10 @@ namespace Jeno.UnitTests
                 .Returns(client.ToHttpClient());
 
             var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
-            Assert.That(async () =>
-            {
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
-                await app.ExecuteAsync(new string[] { _command });
-            },
-            Throws.TypeOf<JenoException>()
+            Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
             .And.Property("Message").StartsWith("Jenkins address is undefined or incorrect"));
         }
@@ -191,15 +187,12 @@ namespace Jeno.UnitTests
                 .Returns(client.ToHttpClient());
 
             var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
-            {
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
-                await app.ExecuteAsync(new string[] { _command });
-            });
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.StartWith("Jenkins address is undefined or incorrect"));
+            Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").StartsWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -234,15 +227,12 @@ namespace Jeno.UnitTests
                 .Returns(client.ToHttpClient());
 
             var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
-            {
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
-                await app.ExecuteAsync(new string[] { _command });
-            });
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.StartWith("Missing default job"));
+            Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").StartsWith("Missing default job"));
         }
 
         [Test]
@@ -282,16 +272,12 @@ namespace Jeno.UnitTests
                 .Returns(client.ToHttpClient());
 
             var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
-            {
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
-                var code = await app.ExecuteAsync(new string[] { _command });
-            });
-
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.Contain("CSRF Protection"));
+            Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").Contains("CSRF Protection"));
         }
 
         [Test]
