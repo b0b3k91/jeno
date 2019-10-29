@@ -114,7 +114,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJobWithoutDefinedMainUrl_InformAboutIt()
+        public async Task RunJobWithoutMainUrl_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
@@ -146,15 +146,16 @@ namespace Jeno.UnitTests
                 .Returns(client.ToHttpClient());
 
             var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
-            var exception = Assert.ThrowsAsync<JenoException>(async () =>
+
+            Assert.That(async () =>
             {
                 var app = new CommandLineApplication();
                 app.Command(command.Name, command.Command);
                 await app.ExecuteAsync(new string[] { _command });
-            });
-
-            Assert.That(exception.ExitCode, Is.EqualTo(JenoCodes.DefaultError));
-            Assert.That(exception.Message, Does.StartWith("Jenkins address is undefined or incorrect"));
+            },
+            Throws.TypeOf<JenoException>()
+            .With.Property("ExitCode").EqualTo(JenoCodes.DefaultError)
+            .And.Property("Message").StartsWith("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
