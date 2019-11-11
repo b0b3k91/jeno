@@ -40,6 +40,56 @@ namespace Jeno.UnitTests
         }
 
         [Test]
+        public async Task SetNewUsername_SaveItInConfiguration()
+        {
+            var value = "jfKennedy";
+            var args = new string[] { _command, $"username:{value}" };
+
+            var configuration = GetDefaultConfiguration();
+
+            var configurationProvider = new Mock<IConfigurationSerializer>();
+
+            configurationProvider.Setup(s => s.ReadConfiguration())
+                .Returns(Task.FromResult(configuration));
+
+            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
+                .Returns(Task.CompletedTask);
+
+            var command = new ChangeConfiguration(configurationProvider.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+            var code = await app.ExecuteAsync(args);
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+            Assert.That(configuration.Username, Is.EqualTo(value));
+        }
+
+        [Test]
+        public async Task SetNewToken_SaveItInConfiguratrion()
+        {
+            var value = "n3wt0k3n";
+            var args = new string[] { _command, $"token:{value}" };
+
+            var configuration = GetDefaultConfiguration();
+
+            var configurationProvider = new Mock<IConfigurationSerializer>();
+
+            configurationProvider.Setup(s => s.ReadConfiguration())
+                .Returns(Task.FromResult(configuration));
+
+            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
+                .Returns(Task.CompletedTask);
+
+            var command = new ChangeConfiguration(configurationProvider.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+            var code = await app.ExecuteAsync(args);
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+            Assert.That(configuration.Token, Is.EqualTo(value));
+        }
+
+        [Test]
         public async Task AddNewRepository_SaveRepositoryInConfiguration()
         {
             var exampleRepo = "thirdExampleRepoUrl";
@@ -196,6 +246,8 @@ namespace Jeno.UnitTests
             return new JenoConfiguration
             {
                 JenkinsUrl = "http://jenkins_host:8080",
+                Username = "jDoe",
+                Token = "5om3r4nd0mt0k3n",
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },

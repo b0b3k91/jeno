@@ -5,11 +5,10 @@ using Jeno.Services;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using System;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Jeno
 {
@@ -24,8 +23,17 @@ namespace Jeno
 
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
-                .AddHttpClient()
-                .Configure<HttpClientHandler>(c => { c.UseDefaultCredentials = true; c.Credentials = CredentialCache.DefaultCredentials; })
+                .AddSingleton(new HttpClientHandler
+                {
+                    UseDefaultCredentials = true,
+                    Credentials = CredentialCache.DefaultCredentials
+                })
+                .AddSingleton(sp => 
+                {
+                    var handler = sp.GetService<HttpClientHandler>();
+                    return new HttpClient(handler);
+                })
+                .AddSingleton<IPasswordProvider, PasswordProvider>()
                 .AddSingleton<IGitWrapper, GitWrapper>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
@@ -46,7 +54,9 @@ namespace Jeno
                 return JenoCodes.Ok;
             });
 
-            foreach (var jenoCommand in container.GetServices<IJenoCommand>())
+            var jenoCommands = container.GetServices<IJenoCommand>();
+
+            foreach (var jenoCommand in jenoCommands)
             {
                 app.Command(jenoCommand.Name, jenoCommand.Command);
             }
