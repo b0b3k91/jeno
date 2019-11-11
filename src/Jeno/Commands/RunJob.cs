@@ -25,10 +25,10 @@ namespace Jeno.Commands
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitWrapper gitWrapper, IPasswordProvider passwordProvider, IHttpClientFactory clientFactory, IOptions<JenoConfiguration> configuration)
+        public RunJob(IGitWrapper gitWrapper, IPasswordProvider passwordProvider, HttpClient client, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
-            _client = clientFactory.CreateClient();
+            _client = client;
             _configuration = configuration.Value;
             _passwordProvider = passwordProvider;
 
