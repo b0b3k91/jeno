@@ -54,6 +54,9 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
 
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}")
@@ -63,7 +66,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -101,6 +104,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{exampleJob}/{_branch}")
                 .Respond(HttpStatusCode.OK);
@@ -109,7 +116,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -144,6 +151,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .WithHeaders("Authorization")
@@ -153,7 +164,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var exception = Assert.ThrowsAsync<JenoException>(async () =>
             {
                 var app = new CommandLineApplication();
@@ -191,6 +202,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .Respond(HttpStatusCode.OK);
@@ -199,7 +214,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var exception = Assert.ThrowsAsync<JenoException>(async () =>
             {
                 var app = new CommandLineApplication();
@@ -238,6 +253,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .Respond(HttpStatusCode.OK);
@@ -246,7 +265,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -281,6 +300,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .Respond(HttpStatusCode.OK);
@@ -289,7 +312,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -323,6 +346,10 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
                 .Respond(HttpStatusCode.OK);
@@ -331,7 +358,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -366,8 +393,13 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns("qwerty123");
+
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}")
+                .WithHeaders("Authorization", $"Bearer {configuration.Token}")
                 .Respond(s => Task.FromResult(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -378,7 +410,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
