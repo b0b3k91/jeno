@@ -146,6 +146,7 @@ namespace Jeno.UnitTests
 
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}")
+                .WithHeaders("Authorization")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
@@ -340,7 +341,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task TryRunJobOnJenkinsWithCSRFProtection_InformAboutIt()
+        public async Task TryRunJobOnJenkinsWithCSRFProtection_UseBasicCredentials()
         {
             var configuration = new JenoConfiguration
             {
@@ -384,6 +385,12 @@ namespace Jeno.UnitTests
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
             .And.Property(nameof(JenoException.Message)).Contains("CSRF Protection"));
+        }
+
+        [Test]
+        public async Task TryRunJobOnJenkinsWithCSRFProtection_GetJeninsCrumbAndRetry()
+        {
+
         }
 
         [Test]

@@ -23,16 +23,7 @@ namespace Jeno
 
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
-                .AddSingleton(new HttpClientHandler
-                {
-                    UseDefaultCredentials = true,
-                    Credentials = CredentialCache.DefaultCredentials
-                })
-                .AddSingleton(sp => 
-                {
-                    var handler = sp.GetService<HttpClientHandler>();
-                    return new HttpClient(handler);
-                })
+                .AddHttpClient()
                 .AddSingleton<IPasswordProvider, PasswordProvider>()
                 .AddSingleton<IGitWrapper, GitWrapper>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()

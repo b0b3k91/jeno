@@ -25,10 +25,10 @@ namespace Jeno.Commands
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitWrapper gitWrapper, IPasswordProvider passwordProvider, HttpClient client, IOptions<JenoConfiguration> configuration)
+        public RunJob(IGitWrapper gitWrapper, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
-            _client = client;
+            _client = factory.CreateClient();
             _configuration = configuration.Value;
             _passwordProvider = passwordProvider;
 
@@ -52,31 +52,25 @@ namespace Jeno.Commands
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
 
 
-                    if (!_configuration.UseWindowsCredentials)
-                    {
-                        _client.DefaultRequestHeaders.Authorization = new BearerAuthenticationHeader(_configuration.Token);
-                    }
+                    _client.DefaultRequestHeaders.Authorization = new BearerAuthenticationHeader(_configuration.Token);
 
                     var response = await _client.PostAsync(jobUrl, null);
 
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
-                        if (!_configuration.UseWindowsCredentials) 
-                        {
-                            var password = _passwordProvider.GetPassword();
-                            _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.Username, password);
-                        }
+                        var password = _passwordProvider.GetPassword();
+                        _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.Username, password);
 
                         var crumbUrl = new Uri(baseUrl, "crumbIssuer/api/json");
                         var crumbResponse = await _client.GetAsync(crumbUrl);
 
-                        if(!crumbResponse.IsSuccessStatusCode)
+                        if (!crumbResponse.IsSuccessStatusCode)
                         {
-                            throw new JenoException("Cannot get crumb for CSRF protection system");
+                            throw new JenoException($"Cannot get crumb for CSRF protection system: {crumbResponse.ReasonPhrase}");
                         }
 
-                        var crumb = JsonConvert.DeserializeObject<CrumbResponse>(await crumbResponse.Content.ReadAsStringAsync());
-                        _client.DefaultRequestHeaders.Add(crumb.CrumbRequestField, crumb.Crumb);
+                        var crumbHeader = JsonConvert.DeserializeObject<CrumbHeader>(await crumbResponse.Content.ReadAsStringAsync());
+                        _client.DefaultRequestHeaders.Add(crumbHeader.CrumbRequestField, crumbHeader.Crumb);
                         response = await _client.PostAsync(jobUrl, null);
                     }
 

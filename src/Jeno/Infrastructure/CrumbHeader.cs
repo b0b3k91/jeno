@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Jeno.Infrastructure
 {
-    public class CrumbResponse
+    public class CrumbHeader
     {
         public string Crumb { get; set; }
         public string CrumbRequestField { get; set; }
