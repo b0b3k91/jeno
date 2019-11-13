@@ -74,7 +74,12 @@ namespace Jeno.Commands
                         response = await _client.PostAsync(jobUrl, null);
                     }
 
-                    return response.IsSuccessStatusCode ? JenoCodes.Ok : JenoCodes.DefaultError;
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new JenoException($"Cannot run job: {response.ReasonPhrase}");
+                    }
+
+                    return JenoCodes.Ok;
                 });
             };
         }
