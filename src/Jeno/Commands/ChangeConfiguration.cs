@@ -55,7 +55,7 @@ namespace Jeno.Commands
                                 break;
 
                             case "username":
-                                configuration.Username = arg.Value;
+                                configuration.UserName = arg.Value;
                                 break;
 
                             case "token":

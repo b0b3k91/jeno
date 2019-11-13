@@ -59,7 +59,7 @@ namespace Jeno.Commands
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
                         var password = _passwordProvider.GetPassword();
-                        _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.Username, password);
+                        _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.UserName, password);
 
                         var crumbUrl = new Uri(baseUrl, "crumbIssuer/api/json");
                         var crumbResponse = await _client.GetAsync(crumbUrl);
@@ -97,16 +97,16 @@ namespace Jeno.Commands
                 throw new JenoException(messageBuilder.ToString());
             }
 
-            if (string.IsNullOrEmpty(_configuration.Username))
+            if (string.IsNullOrEmpty(_configuration.UserName))
             {
                 messageBuilder.AppendLine("Username is undefined");
-                messageBuilder.AppendLine("Use \"jeno set username:[username]\" command to save login");
+                messageBuilder.AppendLine("Use \"jeno set userName:[username]\" command to save login");
                 throw new JenoException(messageBuilder.ToString());
             }
 
             if (string.IsNullOrEmpty(_configuration.Token))
             {
-                var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.Username}/configure");
+                var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.UserName}/configure");
 
                 messageBuilder.AppendLine("User token is undefined");
                 messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");

@@ -61,7 +61,7 @@ namespace Jeno.UnitTests
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
-            Assert.That(configuration.Username, Is.EqualTo(value));
+            Assert.That(configuration.UserName, Is.EqualTo(value));
         }
 
         [Test]
@@ -246,7 +246,7 @@ namespace Jeno.UnitTests
             return new JenoConfiguration
             {
                 JenkinsUrl = "http://jenkins_host:8080",
-                Username = "jDoe",
+                UserName = "jDoe",
                 Token = "5om3r4nd0mt0k3n",
                 Repositories = new Dictionary<string, string>()
                 {

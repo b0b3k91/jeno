@@ -21,7 +21,7 @@ namespace Jeno.UnitTests
         private readonly string _command = "run";
 
         private readonly string _jenkinsUrl = "http://jenkins_host:8080";
-        private readonly string _username = "jDoe";
+        private readonly string _userName = "jDoe";
         private readonly string _token = "5om3r4nd0mt0k3n";
         private readonly string _defaultKey = "default";
         private readonly string _defaultJob = "defaultJob";
@@ -44,7 +44,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -94,7 +94,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -136,12 +136,12 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task MissingUsername_InformAboutIt()
+        public async Task MissingUserName_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = string.Empty,
+                UserName = string.Empty,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -188,7 +188,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = _username,
+                UserName = _userName,
                 Token = string.Empty,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -227,7 +227,7 @@ namespace Jeno.UnitTests
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
             .And.Property(nameof(JenoException.Message)).StartsWith("User token is undefined")
-            .And.Property(nameof(JenoException.Message)).Contain($"{_jenkinsUrl}/user/{_username}/configure"));
+            .And.Property(nameof(JenoException.Message)).Contain($"{_jenkinsUrl}/user/{_userName}/configure"));
         }
 
         [Test]
@@ -236,7 +236,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = string.Empty,
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -283,7 +283,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = "incorrectUrl",
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -330,7 +330,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -376,7 +376,7 @@ namespace Jeno.UnitTests
             var configuration = new JenoConfiguration
             {
                 JenkinsUrl = _jenkinsUrl,
-                Username = _username,
+                UserName = _userName,
                 Token = _token,
                 Repositories = new Dictionary<string, string>()
                 {
@@ -400,7 +400,7 @@ namespace Jeno.UnitTests
             passwordProvider.Setup(s => s.GetPassword())
                 .Returns(_password);
 
-            var basicAuthHeader = new BasicAuthenticationHeader(configuration.Username, _password);
+            var basicAuthHeader = new BasicAuthenticationHeader(configuration.UserName, _password);
             var tokenAuthHeader = new BearerAuthenticationHeader(configuration.Token);
 
             var client = new MockHttpMessageHandler();
