@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Jeno.Infrastructure
 {
-    class BearerAuthenticationHeader : AuthenticationHeaderValue
+    public class BearerAuthenticationHeader : AuthenticationHeaderValue
     {
         public BearerAuthenticationHeader(string token) : base("Bearer", token)
         {
