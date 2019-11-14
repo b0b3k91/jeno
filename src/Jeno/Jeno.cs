@@ -9,6 +9,8 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Jeno
 {
@@ -21,15 +23,22 @@ namespace Jeno
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
                 .AddHttpClient()
+                .AddSingleton(PhysicalConsole.Singleton)
+                .AddSingleton(serializer)
                 .AddSingleton<IPasswordProvider, PasswordProvider>()
                 .AddSingleton<IGitWrapper, GitWrapper>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
                 .AddTransient<IJenoCommand, ChangeConfiguration>()
                 .AddTransient<IJenoCommand, ShowHelp>()
+                .AddTransient<IJenoCommand, ShowConfiguration>()
                 .BuildServiceProvider();
 
             var app = new CommandLineApplication
