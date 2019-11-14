@@ -4,9 +4,10 @@ using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -36,9 +37,15 @@ namespace Jeno.Commands
             {
                 app.Description = "Run job on Jenkins";
 
+                var jobParameters = app.Argument("jobParameters", "List of job parameters", true);
+
                 app.OnExecuteAsync(async token =>
                 {
-                    ValidateConfiguration();
+                    var validationResult = ValidateConfiguration();
+                    if (!validationResult.IsSuccess)
+                    {
+                        throw new JenoException(validationResult.ErrorMessage);
+                    }
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
 
@@ -51,6 +58,18 @@ namespace Jeno.Commands
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
 
+                    if(jobParameters.Values.Count > 0)
+                    {
+                        var validateParameters = ValidateJobParameters(jobParameters.Values);
+                        if (!validateParameters.IsSuccess)
+                        {
+                            throw new JenoException(validateParameters.ErrorMessage);
+                        }
+
+                        var builder = new UriBuilder(jobUrl);
+                        builder.Query = string.Join("&", jobParameters.Values);
+                        jobUrl = builder.Uri;
+                    }
 
                     _client.DefaultRequestHeaders.Authorization = new BearerAuthenticationHeader(_configuration.Token);
 
@@ -84,7 +103,7 @@ namespace Jeno.Commands
             };
         }
 
-        private void ValidateConfiguration()
+        private Result ValidateConfiguration()
         {
             var messageBuilder = new StringBuilder();
 
@@ -92,21 +111,18 @@ namespace Jeno.Commands
             {
                 messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
                 messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
-                throw new JenoException(messageBuilder.ToString());
             }
 
             if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
             {
                 messageBuilder.AppendLine("Missing default job");
                 messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
-                throw new JenoException(messageBuilder.ToString());
             }
 
             if (string.IsNullOrEmpty(_configuration.UserName))
             {
                 messageBuilder.AppendLine("Username is undefined");
                 messageBuilder.AppendLine("Use \"jeno set userName:[username]\" command to save login");
-                throw new JenoException(messageBuilder.ToString());
             }
 
             if (string.IsNullOrEmpty(_configuration.Token))
@@ -116,8 +132,25 @@ namespace Jeno.Commands
                 messageBuilder.AppendLine("User token is undefined");
                 messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
                 messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
-                throw new JenoException(messageBuilder.ToString());
             }
+
+            return messageBuilder.Length > 0 ? Result.Invalid(messageBuilder.ToString()) : Result.Ok();
+        }
+
+        private Result ValidateJobParameters(IEnumerable<string> parameters)
+        {
+            if(parameters.Any(s => !s.Contains("=")))
+            {
+                var invalidParameters = string.Join(", ", parameters.Where(s => !s.Contains("=")));
+
+                var message = new StringBuilder();
+                message.AppendLine("Some of job parameters have incorrect format");
+                message.AppendLine(invalidParameters);
+
+                return Result.Invalid(message.ToString());
+            }
+
+            return Result.Ok();
         }
     }
 }

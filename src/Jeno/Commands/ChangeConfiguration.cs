@@ -28,15 +28,11 @@ namespace Jeno.Commands
 
                 app.OnExecuteAsync(async token =>
                 {
-                    if (settings.Any(s => !s.Contains(':')))
+                    var validationResult = ValidateSettings(settings);
+
+                    if (!validationResult.IsSuccess)
                     {
-                        var incorrectSettings = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
-
-                        var messageBuilder = new StringBuilder();
-                        messageBuilder.AppendLine("Some of passed options have unhandled format:");
-                        messageBuilder.AppendLine(incorrectSettings);
-
-                        throw new JenoException(messageBuilder.ToString());
+                        throw new JenoException(validationResult.ErrorMessage);
                     }
 
                     var configuration = await _serializer.ReadConfiguration();
@@ -119,6 +115,22 @@ namespace Jeno.Commands
                     key: setting.Split(':').First().ToLower(),
                     value: string.Join(':', setting.Split(':').Skip(1))
                 );
+        }
+
+        private Result ValidateSettings(List<string> settings)
+        {
+            if (settings.Any(s => !s.Contains(':')))
+            {
+                var incorrectSettings = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
+
+                var messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine("Some of passed options have unhandled format:");
+                messageBuilder.AppendLine(incorrectSettings);
+
+                return Result.Invalid(messageBuilder.ToString());
+            }
+
+            return Result.Ok();
         }
     }
 }

@@ -179,7 +179,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).StartWith("Username is undefined"));
+            .And.Property(nameof(JenoException.Message)).Contains("Username is undefined"));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).StartsWith("User token is undefined")
+            .And.Property(nameof(JenoException.Message)).Contains("User token is undefined")
             .And.Property(nameof(JenoException.Message)).Contain($"{_jenkinsUrl}/user/{_userName}/configure"));
         }
 
@@ -274,7 +274,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).StartsWith("Jenkins address is undefined or incorrect"));
+            .And.Property(nameof(JenoException.Message)).Contains("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -321,7 +321,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).StartsWith("Jenkins address is undefined or incorrect"));
+            .And.Property(nameof(JenoException.Message)).Contains("Jenkins address is undefined or incorrect"));
         }
 
         [Test]
@@ -367,7 +367,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).StartsWith("Missing default job"));
+            .And.Property(nameof(JenoException.Message)).Contains("Missing default job"));
         }
 
         [Test]
@@ -437,7 +437,117 @@ namespace Jeno.UnitTests
         [Test]
         public async Task PassJobParameters_RunJubWithCustomParameters()
         {
-            Assert.Fail("Unimplemented feature");
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                UserName = _userName,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
+            var parameters = new List<string>
+            {
+                "runUnitTests=true",
+                "buildType=Quick",
+                "sendEmail=true"
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns(_password);
+
+            var client = new MockHttpMessageHandler();
+            client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters?{string.Join("&", parameters)}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            parameters.Insert(0, _command);
+
+            var code = await app.ExecuteAsync(parameters.ToArray());
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+        }
+
+        [Test]
+        public async Task PassIncorrectJobParameters_InformAboutInvalidParameters()
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                UserName = _userName,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
+            var parameters = new List<string>
+            {
+                "runUnitTeststrue",
+                "buildType=Quick",
+                "sendEmail=true"
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns(_password);
+
+            var client = new MockHttpMessageHandler();
+            client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters?{string.Join("&", parameters)}")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            parameters.Insert(0, _command);
+
+            Assert.That(async () => await app.ExecuteAsync(parameters.ToArray()), Throws.TypeOf<JenoException>()
+                .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+                .And.Property(nameof(JenoException.Message)).Contains("Some of job parameters have incorrect format")
+                .And.Property(nameof(JenoException.Message)).Contains("runUnitTeststrue")
+                .And.Property(nameof(JenoException.Message)).Not.Contains("sendEmail=true"));
         }
     }
 }
