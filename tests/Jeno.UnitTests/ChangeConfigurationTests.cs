@@ -22,17 +22,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -47,17 +40,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -71,18 +57,10 @@ namespace Jeno.UnitTests
             var args = new string[] { _command, $"token:{value}" };
 
             var configuration = GetDefaultConfiguration();
-
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -98,17 +76,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -126,17 +97,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -154,17 +118,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -181,17 +138,10 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(configuration));
-
-            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
-                .Returns(Task.CompletedTask);
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
+
             var code = await app.ExecuteAsync(args);
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
@@ -205,11 +155,7 @@ namespace Jeno.UnitTests
             var value = "s3Cr3t0n3";
             var args = new string[] { _command, $"{parameter}:{value}" };
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(GetDefaultConfiguration()));
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()));
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -227,11 +173,7 @@ namespace Jeno.UnitTests
             var deleteOption = "-d";
             var args = new string[] { _command, $"repository:{deletedRepository}", deleteOption };
 
-            var configurationProvider = new Mock<IConfigurationSerializer>();
-            configurationProvider.Setup(s => s.ReadConfiguration())
-                .Returns(Task.FromResult(GetDefaultConfiguration()));
-
-            var command = new ChangeConfiguration(configurationProvider.Object);
+            var command = new ChangeConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()));
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -255,6 +197,17 @@ namespace Jeno.UnitTests
                     { "default", "defaultJob" },
                 }
             };
+        }
+
+        private IConfigurationSerializer GetConfigurationSerializerMock(JenoConfiguration configuration)
+        {
+            var configurationProvider = new Mock<IConfigurationSerializer>();
+            configurationProvider.Setup(s => s.ReadConfiguration())
+                .Returns(Task.FromResult(configuration));
+            configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
+                .Returns(Task.CompletedTask);
+
+            return configurationProvider.Object;
         }
     }
 }

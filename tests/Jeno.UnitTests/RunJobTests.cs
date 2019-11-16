@@ -40,23 +40,6 @@ namespace Jeno.UnitTests
         public async Task PassUndefinedRepository_RunDefaultJob()
         {
             var undefinedRepository = "fifthExampleRepo";
-            
-            var configuration = new JenoConfiguration
-            {
-                JenkinsUrl = _jenkinsUrl,
-                UserName = _userName,
-                Token = _token,
-                Repositories = new Dictionary<string, string>()
-                {
-                    { "firstExampleRepoUrl", "firstExampleJob" },
-                    { "secondExampleRepoUrl", "secondExampleJob" },
-                    { _defaultKey,  _defaultJob},
-                }
-            };
-
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
@@ -66,10 +49,6 @@ namespace Jeno.UnitTests
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
 
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
@@ -78,7 +57,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -106,10 +85,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
             var gitWrapper = new Mock<IGitWrapper>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
@@ -117,10 +92,6 @@ namespace Jeno.UnitTests
                 .Returns(Task.FromResult(exampleRepo));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
 
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{exampleJob}/{_branch}/buildWithParameters")
@@ -130,7 +101,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -140,25 +111,8 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJenoOutsideRepository_BreakExecution() 
+        public async Task RunJenoOutsideRepository_BreakExecution()
         {
-            var configuration = new JenoConfiguration
-            {
-                JenkinsUrl = _jenkinsUrl,
-                UserName = _userName,
-                Token = _token,
-                Repositories = new Dictionary<string, string>()
-                {
-                    { "firstExampleRepoUrl", "firstExampleJob" },
-                    { "secondExampleRepoUrl", "secondExampleJob" },
-                    { _defaultKey,  _defaultJob},
-                }
-            };
-
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
             var gitWrapper = new Mock<IGitWrapper>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(false));
@@ -166,10 +120,6 @@ namespace Jeno.UnitTests
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
 
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
@@ -179,7 +129,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -205,22 +155,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
@@ -229,9 +163,9 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
@@ -254,22 +188,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
@@ -278,9 +196,9 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
-                var app = new CommandLineApplication();
-                app.Command(command.Name, command.Command);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
@@ -304,22 +222,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
@@ -328,7 +230,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -353,18 +255,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
             var passwordProvider = new Mock<IPasswordProvider>();
             passwordProvider.Setup(s => s.GetPassword())
                 .Returns(_password);
@@ -377,7 +267,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -401,22 +291,6 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
             var client = new MockHttpMessageHandler();
             client.When($"{_jenkinsUrl}/job/{_defaultJob}/job/{_branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
@@ -425,7 +299,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -437,37 +311,8 @@ namespace Jeno.UnitTests
         [Test]
         public async Task TryRunJobOnJenkinsWithCSRFProtection_UseBasicCredentialsAndAskForCrumb()
         {
-            var configuration = new JenoConfiguration
-            {
-                JenkinsUrl = _jenkinsUrl,
-                UserName = _userName,
-                Token = _token,
-                Repositories = new Dictionary<string, string>()
-                {
-                    { "firstExampleRepoUrl", "firstExampleJob" },
-                    { "secondExampleRepoUrl", "secondExampleJob" },
-                    { _defaultKey,  _defaultJob},
-                }
-            };
-
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultJob));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
-
-            var basicAuthHeader = new BasicAuthenticationHeader(configuration.UserName, _password);
-            var tokenAuthHeader = new BearerAuthenticationHeader(configuration.Token);
+            var basicAuthHeader = new BasicAuthenticationHeader(_userName, _password);
+            var tokenAuthHeader = new BearerAuthenticationHeader(_token);
 
             var client = new MockHttpMessageHandler();
             client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
@@ -477,11 +322,9 @@ namespace Jeno.UnitTests
                     StatusCode = HttpStatusCode.Forbidden,
                     ReasonPhrase = "No valid crumb was included in the request"
                 });
-
             client.Expect($"{_jenkinsUrl}/crumbIssuer/api/json")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .Respond(_crumbContentType, JsonConvert.SerializeObject(_crumbHeader));
-
             client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .WithHeaders(_crumbHeader.CrumbRequestField, _crumbHeader.Crumb)
@@ -491,7 +334,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -503,41 +346,12 @@ namespace Jeno.UnitTests
         [Test]
         public async Task PassJobParameters_RunJubWithCustomParameters()
         {
-            var configuration = new JenoConfiguration
-            {
-                JenkinsUrl = _jenkinsUrl,
-                UserName = _userName,
-                Token = _token,
-                Repositories = new Dictionary<string, string>()
-                {
-                    { "firstExampleRepoUrl", "firstExampleJob" },
-                    { "secondExampleRepoUrl", "secondExampleJob" },
-                    { _defaultKey,  _defaultJob},
-                }
-            };
-
             var parameters = new List<string>
             {
                 "runUnitTests=true",
                 "buildType=Quick",
                 "sendEmail=true"
             };
-
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
 
             var client = new MockHttpMessageHandler();
             client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters?{string.Join("&", parameters)}")
@@ -547,7 +361,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -562,41 +376,12 @@ namespace Jeno.UnitTests
         [Test]
         public async Task PassIncorrectJobParameters_InformAboutInvalidParameters()
         {
-            var configuration = new JenoConfiguration
-            {
-                JenkinsUrl = _jenkinsUrl,
-                UserName = _userName,
-                Token = _token,
-                Repositories = new Dictionary<string, string>()
-                {
-                    { "firstExampleRepoUrl", "firstExampleJob" },
-                    { "secondExampleRepoUrl", "secondExampleJob" },
-                    { _defaultKey,  _defaultJob},
-                }
-            };
-
             var parameters = new List<string>
             {
                 "runUnitTeststrue",
                 "buildType=Quick",
                 "sendEmail=true"
             };
-
-            var options = new Mock<IOptions<JenoConfiguration>>();
-            options.Setup(c => c.Value)
-                .Returns(configuration);
-
-            var gitWrapper = new Mock<IGitWrapper>();
-            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
-                .Returns(Task.FromResult(_defaultKey));
-            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                .Returns(Task.FromResult(_branch));
-
-            var passwordProvider = new Mock<IPasswordProvider>();
-            passwordProvider.Setup(s => s.GetPassword())
-                .Returns(_password);
 
             var client = new MockHttpMessageHandler();
             client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters?{string.Join("&", parameters)}")
@@ -606,7 +391,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -618,6 +403,59 @@ namespace Jeno.UnitTests
                 .And.Property(nameof(JenoException.Message)).Contains("Some of job parameters have incorrect format")
                 .And.Property(nameof(JenoException.Message)).Contains("runUnitTeststrue")
                 .And.Property(nameof(JenoException.Message)).Not.Contains("sendEmail=true"));
+        }
+
+        private IOptions<JenoConfiguration> GetOptionsMock(JenoConfiguration configuration = null)
+        {
+            if (configuration == null)
+            {
+                configuration = new JenoConfiguration
+                {
+                    JenkinsUrl = _jenkinsUrl,
+                    UserName = _userName,
+                    Token = _token,
+                    Repositories = new Dictionary<string, string>()
+                    {
+                        { "firstExampleRepoUrl", "firstExampleJob" },
+                        { "secondExampleRepoUrl", "secondExampleJob" },
+                        { _defaultKey,  _defaultJob},
+                    }
+                };
+            }
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            return options.Object;
+        }
+
+        private IGitWrapper DefaultGitMock
+        {
+            get
+            {
+                var gitWrapper = new Mock<IGitWrapper>();
+                gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                    .Returns(Task.FromResult(true));
+                gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                    .Returns(Task.FromResult(_defaultKey));
+                gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                    .Returns(Task.FromResult(_branch));
+
+                return gitWrapper.Object;
+            }
+        }
+
+        private IPasswordProvider PasswordProviderMock
+        {
+            get
+            {
+                var passwordProvider = new Mock<IPasswordProvider>();
+                passwordProvider.Setup(s => s.GetPassword())
+                    .Returns(_password);
+
+                return passwordProvider.Object;
+            }
         }
     }
 }
