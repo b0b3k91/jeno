@@ -59,6 +59,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(undefinedRepository));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -109,6 +111,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(exampleRepo));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -136,6 +140,56 @@ namespace Jeno.UnitTests
         }
 
         [Test]
+        public async Task RunJenoOutsideRepository_BreakExecution() 
+        {
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                UserName = _userName,
+                Token = _token,
+                Repositories = new Dictionary<string, string>()
+                {
+                    { "firstExampleRepoUrl", "firstExampleJob" },
+                    { "secondExampleRepoUrl", "secondExampleJob" },
+                    { _defaultKey,  _defaultJob},
+                }
+            };
+
+            var options = new Mock<IOptions<JenoConfiguration>>();
+            options.Setup(c => c.Value)
+                .Returns(configuration);
+
+            var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(false));
+            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
+
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns(_password);
+
+            var client = new MockHttpMessageHandler();
+            client.When($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var command = new RunJob(gitWrapper.Object, passwordProvider.Object, httpClientFactory.Object, options.Object);
+
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            Assert.That(async () => await app.ExecuteAsync(new string[] { _command }), Throws.TypeOf<JenoException>()
+            .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
+            .And.Property(nameof(JenoException.Message)).Contains("Current directory is not git repository."));
+        }
+
+        [Test]
         public async Task MissingUserName_InformAboutIt()
         {
             var configuration = new JenoConfiguration
@@ -156,6 +210,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -203,6 +259,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -251,6 +309,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -298,6 +358,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -344,6 +406,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -391,6 +455,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultJob));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -462,6 +528,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
@@ -519,6 +587,8 @@ namespace Jeno.UnitTests
                 .Returns(configuration);
 
             var gitWrapper = new Mock<IGitWrapper>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))

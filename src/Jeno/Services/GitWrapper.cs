@@ -1,5 +1,6 @@
 ﻿using Jeno.Core;
 using Jeno.Interfaces;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -9,6 +10,19 @@ namespace Jeno.Services
     {
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
+        private const string _insideWorkTreeCommand = "git rev-parse --is-inside-work-tree";
+
+        public async Task<bool> IsGitRepository(string repoPath)
+        {
+            try
+            {
+                return Convert.ToBoolean(await RunGit(_insideWorkTreeCommand, repoPath));
+            }
+            catch(JenoException)
+            {
+                return false;
+            }
+        }
 
         public async Task<string> GetRepoUrl(string repoPath)
         {

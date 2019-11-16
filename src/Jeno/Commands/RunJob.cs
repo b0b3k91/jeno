@@ -49,6 +49,11 @@ namespace Jeno.Commands
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
 
+                    if (!await _gitWrapper.IsGitRepository(Directory.GetCurrentDirectory()))
+                    {
+                        throw new JenoException("Current directory is not git repository.");
+                    }
+
                     var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
