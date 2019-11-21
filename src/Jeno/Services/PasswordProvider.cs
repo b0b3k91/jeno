@@ -1,7 +1,5 @@
 ﻿using Jeno.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Jeno.Services
 {
@@ -25,14 +23,14 @@ namespace Jeno.Services
                         Console.Write("\b \b");
                     }
                 }
-                else if(key.Key == ConsoleKey.Enter)
+                else if (key.Key == ConsoleKey.Enter)
                 {
                     break;
                 }
                 else
                 {
-                        password += key.KeyChar;
-                        Console.Write("*");
+                    password += key.KeyChar;
+                    Console.Write("*");
                 }
             }
 

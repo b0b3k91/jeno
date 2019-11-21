@@ -135,7 +135,6 @@ namespace Jeno.UnitTests
             var deletedRepository = "firstExampleRepoUrl";
             var args = new string[] { _command, $"repository:{deletedRepository}", deleteOption };
 
-
             var configuration = GetDefaultConfiguration();
 
             var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));

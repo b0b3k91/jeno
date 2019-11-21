@@ -1,12 +1,8 @@
 ﻿using Jeno.Core;
-using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Jeno.Commands
 {

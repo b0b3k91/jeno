@@ -1,5 +1,4 @@
 ﻿using Jeno.Core;
-using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 

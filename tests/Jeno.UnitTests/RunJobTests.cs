@@ -30,6 +30,7 @@ namespace Jeno.UnitTests
         private readonly string _password = "qwerty123";
 
         private readonly string _crumbContentType = "application/json";
+
         private readonly CrumbHeader _crumbHeader = new CrumbHeader
         {
             Crumb = "hYwN6MK1RlHpinq963cOO0jdwdb8Flrn",

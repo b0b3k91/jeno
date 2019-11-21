@@ -63,7 +63,7 @@ namespace Jeno.Commands
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
 
-                    if(jobParameters.Values.Count > 0)
+                    if (jobParameters.Values.Count > 0)
                     {
                         var validateParameters = ValidateJobParameters(jobParameters.Values);
                         if (!validateParameters.IsSuccess)
@@ -144,7 +144,7 @@ namespace Jeno.Commands
 
         private Result ValidateJobParameters(IEnumerable<string> parameters)
         {
-            if(parameters.Any(s => !s.Contains("=")))
+            if (parameters.Any(s => !s.Contains("=")))
             {
                 var invalidParameters = string.Join(", ", parameters.Where(s => !s.Contains("=")));
 

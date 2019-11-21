@@ -18,7 +18,7 @@ namespace Jeno.Services
 
                 return Convert.ToBoolean(result);
             }
-            catch(JenoException)
+            catch (JenoException)
             {
                 return false;
             }
@@ -55,7 +55,7 @@ namespace Jeno.Services
 
                 process.Start();
 
-                while (!process.HasExited) 
+                while (!process.HasExited)
                 {
                 }
 

@@ -40,7 +40,7 @@ namespace Jeno.Commands
                     var args = settings
                         .Where(s => s.Contains(':'))
                         .Select(s => ParseSetting(s))
-                        .ToDictionary(k => k.Key, v =>  v.Value) ?? new Dictionary<string, string>();
+                        .ToDictionary(k => k.Key, v => v.Value) ?? new Dictionary<string, string>();
 
                     foreach (var arg in args)
                     {

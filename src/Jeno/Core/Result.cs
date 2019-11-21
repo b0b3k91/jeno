@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Jeno.Core
+﻿namespace Jeno.Core
 {
     public class Result
     {
         public bool IsSuccess { get; }
         public string ErrorMessage { get; }
+
         private Result(bool isSuccess, string errorMessage)
         {
             IsSuccess = isSuccess;
