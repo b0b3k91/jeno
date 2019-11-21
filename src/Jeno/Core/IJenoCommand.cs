@@ -1,7 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 
-namespace Jeno.Interfaces
+namespace Jeno.Core
 {
     public interface IJenoCommand
     {
