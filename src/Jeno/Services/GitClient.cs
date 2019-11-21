@@ -7,17 +7,13 @@ using System.Threading.Tasks;
 
 namespace Jeno.Services
 {
-    internal class GitWrapper : IGitWrapper
+    internal class GitClient : IGitClient
     {
-        private const string _branchCommand = "branch";
-        private const string _remoteAddressCommand = "config --get remote.origin.url";
-        private const string _insideWorkTreeCommand = "rev-parse --is-inside-work-tree";
-
         public async Task<bool> IsGitRepository(string repoPath)
         {
             try
             {
-                var result = (await RunGit(_insideWorkTreeCommand, repoPath))
+                var result = (await RunGit("rev-parse --is-inside-work-tree", repoPath))
                     .Replace("\n", string.Empty);
 
                 return Convert.ToBoolean(result);
@@ -30,13 +26,13 @@ namespace Jeno.Services
 
         public async Task<string> GetRepoUrl(string repoPath)
         {
-            return (await RunGit(_remoteAddressCommand, repoPath))
+            return (await RunGit("config --get remote.origin.url", repoPath))
                 .Replace("\n", string.Empty);
         }
 
         public async Task<string> GetCurrentBranch(string repoPath)
         {
-            return (await RunGit(_branchCommand, repoPath))
+            return (await RunGit("branch", repoPath))
                 .Split("\n")
                 .Single(s => s.Contains("*"))
                 .Remove(0, 1)

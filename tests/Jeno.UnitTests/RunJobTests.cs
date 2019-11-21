@@ -41,7 +41,7 @@ namespace Jeno.UnitTests
         {
             var undefinedRepository = "fifthExampleRepo";
 
-            var gitWrapper = new Mock<IGitWrapper>();
+            var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
@@ -85,7 +85,7 @@ namespace Jeno.UnitTests
                 }
             };
 
-            var gitWrapper = new Mock<IGitWrapper>();
+            var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
@@ -113,7 +113,7 @@ namespace Jeno.UnitTests
         [Test]
         public async Task RunJenoOutsideRepository_BreakExecution()
         {
-            var gitWrapper = new Mock<IGitWrapper>();
+            var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(false));
             gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
@@ -430,11 +430,11 @@ namespace Jeno.UnitTests
             return options.Object;
         }
 
-        private IGitWrapper DefaultGitMock
+        private IGitClient DefaultGitMock
         {
             get
             {
-                var gitWrapper = new Mock<IGitWrapper>();
+                var gitWrapper = new Mock<IGitClient>();
                 gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                     .Returns(Task.FromResult(true));
                 gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))

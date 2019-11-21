@@ -33,7 +33,7 @@ namespace Jeno
                 .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton(serializer)
                 .AddSingleton<IPasswordProvider, PasswordProvider>()
-                .AddSingleton<IGitWrapper, GitWrapper>()
+                .AddSingleton<IGitClient, GitClient>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
                 .AddTransient<IJenoCommand, ChangeConfiguration>()

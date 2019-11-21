@@ -2,7 +2,7 @@
 
 namespace Jeno.Interfaces
 {
-    public interface IGitWrapper
+    public interface IGitClient
     {
         Task<bool> IsGitRepository(string repoPath);
 

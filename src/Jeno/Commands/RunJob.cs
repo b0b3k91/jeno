@@ -18,7 +18,7 @@ namespace Jeno.Commands
     {
         private readonly string _defaulJobKey = "default";
 
-        private readonly IGitWrapper _gitWrapper;
+        private readonly IGitClient _gitWrapper;
         private readonly HttpClient _client;
         private readonly JenoConfiguration _configuration;
         private readonly IPasswordProvider _passwordProvider;
@@ -26,7 +26,7 @@ namespace Jeno.Commands
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitWrapper gitWrapper, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
+        public RunJob(IGitClient gitWrapper, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
             _client = factory.CreateClient();
