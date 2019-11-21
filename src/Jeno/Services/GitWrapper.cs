@@ -2,6 +2,7 @@
 using Jeno.Interfaces;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Jeno.Services
@@ -10,13 +11,16 @@ namespace Jeno.Services
     {
         private const string _branchCommand = "branch";
         private const string _remoteAddressCommand = "config --get remote.origin.url";
-        private const string _insideWorkTreeCommand = "git rev-parse --is-inside-work-tree";
+        private const string _insideWorkTreeCommand = "rev-parse --is-inside-work-tree";
 
         public async Task<bool> IsGitRepository(string repoPath)
         {
             try
             {
-                return Convert.ToBoolean(await RunGit(_insideWorkTreeCommand, repoPath));
+                var result = (await RunGit(_insideWorkTreeCommand, repoPath))
+                    .Replace("\n", string.Empty);
+
+                return Convert.ToBoolean(result);
             }
             catch(JenoException)
             {
@@ -26,14 +30,15 @@ namespace Jeno.Services
 
         public async Task<string> GetRepoUrl(string repoPath)
         {
-            return await RunGit(_remoteAddressCommand, repoPath);
+            return (await RunGit(_remoteAddressCommand, repoPath))
+                .Replace("\n", string.Empty);
         }
 
         public async Task<string> GetCurrentBranch(string repoPath)
         {
-            var branch = await RunGit(_branchCommand, repoPath);
-
-            return branch
+            return (await RunGit(_branchCommand, repoPath))
+                .Split("\n")
+                .Single(s => s.Contains("*"))
                 .Remove(0, 1)
                 .Trim();
         }
@@ -54,12 +59,13 @@ namespace Jeno.Services
 
                 process.Start();
 
-                while (!process.StandardOutput.EndOfStream)
+                while (!process.HasExited) 
                 {
-                    if (process.ExitCode == 0)
-                    {
-                        return await process.StandardOutput.ReadLineAsync();
-                    }
+                }
+
+                if (process.ExitCode == 0)
+                {
+                    return await process.StandardOutput.ReadToEndAsync();
                 }
 
                 throw new JenoException(await process.StandardOutput.ReadLineAsync(), process.ExitCode);
