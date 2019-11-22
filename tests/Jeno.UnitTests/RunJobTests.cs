@@ -45,7 +45,7 @@ namespace Jeno.UnitTests
             var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+            gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
                 .Returns(Task.FromResult(undefinedRepository));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
@@ -89,7 +89,7 @@ namespace Jeno.UnitTests
             var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+            gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
                 .Returns(Task.FromResult(exampleRepo));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
@@ -117,7 +117,7 @@ namespace Jeno.UnitTests
             var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                 .Returns(Task.FromResult(false));
-            gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+            gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
                 .Returns(Task.FromResult(_defaultKey));
             gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                 .Returns(Task.FromResult(_branch));
@@ -438,7 +438,7 @@ namespace Jeno.UnitTests
                 var gitWrapper = new Mock<IGitClient>();
                 gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                     .Returns(Task.FromResult(true));
-                gitWrapper.Setup(s => s.GetRepoUrl(It.IsAny<string>()))
+                gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
                     .Returns(Task.FromResult(_defaultKey));
                 gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                     .Returns(Task.FromResult(_branch));

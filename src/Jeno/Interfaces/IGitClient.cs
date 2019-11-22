@@ -6,7 +6,7 @@ namespace Jeno.Interfaces
     {
         Task<bool> IsGitRepository(string repoPath);
 
-        Task<string> GetRepoUrl(string repoPath);
+        Task<string> GetRepoName(string repoPath);
 
         Task<string> GetCurrentBranch(string repoPath);
     }

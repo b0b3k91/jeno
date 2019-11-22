@@ -24,10 +24,13 @@ namespace Jeno.Services
             }
         }
 
-        public async Task<string> GetRepoUrl(string repoPath)
+        public async Task<string> GetRepoName(string repoPath)
         {
             return (await RunGit("config --get remote.origin.url", repoPath))
-                .Replace("\n", string.Empty);
+                .Replace("\n", string.Empty)
+                .Split('/')
+                .Last()
+                .Replace(".git", string.Empty);
         }
 
         public async Task<string> GetCurrentBranch(string repoPath)

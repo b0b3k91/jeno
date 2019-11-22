@@ -54,7 +54,7 @@ namespace Jeno.Commands
                         throw new JenoException("Current directory is not git repository.");
                     }
 
-                    var currentRepo = await _gitWrapper.GetRepoUrl(Directory.GetCurrentDirectory());
+                    var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
                     var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
