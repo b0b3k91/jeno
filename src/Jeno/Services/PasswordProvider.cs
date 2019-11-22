@@ -9,7 +9,7 @@ namespace Jeno.Services
         {
             string password = string.Empty;
 
-            Console.WriteLine("Password:");
+            Console.Write("Password:");
 
             while (true)
             {
