@@ -31,10 +31,11 @@ namespace Jeno
                 .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton(serializer)
                 .AddSingleton<IPasswordProvider, PasswordProvider>()
+                .AddSingleton<IEncryptor, Encryptor>()
                 .AddSingleton<IGitClient, GitClient>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
                 .AddTransient<IJenoCommand, RunJob>()
-                .AddTransient<IJenoCommand, ChangeConfiguration>()
+                .AddTransient<IJenoCommand, SetConfiguration>()
                 .AddTransient<IJenoCommand, ShowHelp>()
                 .AddTransient<IJenoCommand, ShowConfiguration>()
                 .BuildServiceProvider();
@@ -42,13 +43,13 @@ namespace Jeno
             var app = new CommandLineApplication
             {
                 Name = "jeno",
-                Description = "Jeno is a simple command line interface used to manage Jenkins jobs",
+                Description = Messages.JenoDescription,
             };
 
             app.OnExecuteAsync(async token =>
             {
                 Console.WriteLine(app.Description);
-                Console.WriteLine("Use \"jeno help\" command to get more information");
+                Console.WriteLine(Messages.BasicMessage);
                 return JenoCodes.Ok;
             });
 

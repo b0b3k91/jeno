@@ -10,9 +10,10 @@ using System.Threading.Tasks;
 namespace Jeno.UnitTests
 {
     [TestFixture]
-    internal class ChangeConfigurationTests
+    internal class SetConfigurationTests
     {
         private readonly string _command = "set";
+        private const string Password = "Qwerty123";
 
         [Test]
         public async Task SetNewJenkinsUrl_SaveItInConfiguration()
@@ -22,7 +23,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -40,7 +41,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -57,7 +58,7 @@ namespace Jeno.UnitTests
             var args = new string[] { _command, $"token:{value}" };
 
             var configuration = GetDefaultConfiguration();
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -65,6 +66,26 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.Token, Is.EqualTo(value));
+        }
+
+        [Test]
+        public async Task SetPassword_UseEncryptorAndSaveInConfiguration()
+        {
+            var value = "Qwertz123";
+            var args = new string[] { _command, $"password:{value}" };
+
+            var configuration = GetDefaultConfiguration();
+            var encryptor = GetEncryptorMock(value);
+
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, encryptor.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            var code = await app.ExecuteAsync(args);
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+            Assert.That(configuration.Password, Is.EqualTo(value));
+            encryptor.Verify(s => s.Encrypt(value), Times.AtLeastOnce());
         }
 
         [Test]
@@ -76,7 +97,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -97,7 +118,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -118,7 +139,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -137,7 +158,7 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(configuration));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object);
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -150,11 +171,11 @@ namespace Jeno.UnitTests
         [Test]
         public void TryToSetUndefinedParameter_InformUserAboutAvailableParameters()
         {
-            var parameter = "password";
-            var value = "s3Cr3t0n3";
+            var parameter = "domain";
+            var value = "s3Cr3t";
             var args = new string[] { _command, $"{parameter}:{value}" };
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()).Object, GetEncryptorMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -172,7 +193,7 @@ namespace Jeno.UnitTests
             var deleteOption = "-d";
             var args = new string[] { _command, $"repository:{deletedRepository}", deleteOption };
 
-            var command = new ChangeConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()));
+            var command = new SetConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()).Object, GetEncryptorMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -189,6 +210,7 @@ namespace Jeno.UnitTests
                 JenkinsUrl = "http://jenkins_host:8080",
                 UserName = "jDoe",
                 Token = "5om3r4nd0mt0k3n",
+                Password = "Qwerty123",
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
@@ -198,7 +220,7 @@ namespace Jeno.UnitTests
             };
         }
 
-        private IConfigurationSerializer GetConfigurationSerializerMock(JenoConfiguration configuration)
+        private Mock<IConfigurationSerializer> GetConfigurationSerializerMock(JenoConfiguration configuration)
         {
             var configurationProvider = new Mock<IConfigurationSerializer>();
             configurationProvider.Setup(s => s.ReadConfiguration())
@@ -206,7 +228,17 @@ namespace Jeno.UnitTests
             configurationProvider.Setup(s => s.SaveConfiguration(It.IsAny<JenoConfiguration>()))
                 .Returns(Task.CompletedTask);
 
-            return configurationProvider.Object;
+            return configurationProvider;
+        }
+
+        private Mock<IEncryptor> GetEncryptorMock(string password = Password)
+        {
+            var encryptor = new Mock<IEncryptor>();
+
+            encryptor.Setup(s => s.Encrypt(It.IsAny<string>()))
+                .Returns(password);
+
+            return encryptor;
         }
     }
 }

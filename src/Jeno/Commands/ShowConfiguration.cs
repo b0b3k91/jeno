@@ -24,7 +24,7 @@ namespace Jeno.Commands
 
             Command = (app) =>
             {
-                app.Description = "Show Jeno configuration";
+                app.Description = Messages.ShowConfigurationCommandDescription;
 
                 app.OnExecuteAsync(async token =>
                 {

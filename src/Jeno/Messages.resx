@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BasicMessage" xml:space="preserve">
+    <value>Use "jeno help" command to get more information</value>
+  </data>
+  <data name="ChangeConfigurationDescription" xml:space="preserve">
+    <value>Set options of app configuration</value>
+  </data>
+  <data name="ConfigureDefaultJobTip" xml:space="preserve">
+    <value>Use "jeno set repository:default=[defaultJob]" command to save default job</value>
+  </data>
+  <data name="ConfigureJenkinsAddressTip" xml:space="preserve">
+    <value>Use "jeno set jenkinsUrl:[url]" command to save correct Jenkins address</value>
+  </data>
+  <data name="ConfigureTokenTip" xml:space="preserve">
+    <value>Use "jeno set token:[token]" command to save authorization token</value>
+  </data>
+  <data name="ConfigureUserNameTip" xml:space="preserve">
+    <value>Use "jeno set userName:[username]" command to save login</value>
+  </data>
+  <data name="CsrfException" xml:space="preserve">
+    <value>Cannot get crumb for CSRF protection system:</value>
+  </data>
+  <data name="DeleteRepoOptionDescription" xml:space="preserve">
+    <value>Remove passed repository from configuration</value>
+  </data>
+  <data name="HelpCommandDescription" xml:space="preserve">
+    <value>List of available commands</value>
+  </data>
+  <data name="IncorrectJenkinsAddress" xml:space="preserve">
+    <value>Jenkins address is undefined or incorrect</value>
+  </data>
+  <data name="IncorrectJobParameters" xml:space="preserve">
+    <value>Some of job parameters have incorrect format</value>
+  </data>
+  <data name="JenkinsConfigurationAddressMessage" xml:space="preserve">
+    <value>Token can be generated on</value>
+  </data>
+  <data name="JenoDescription" xml:space="preserve">
+    <value>Jeno is a command line interface allows to running Jenkins jobs</value>
+  </data>
+  <data name="JobException" xml:space="preserve">
+    <value>Cannot run job: </value>
+  </data>
+  <data name="MissingDefaultJob" xml:space="preserve">
+    <value>Missing default job</value>
+  </data>
+  <data name="MissingRepoName" xml:space="preserve">
+    <value>Some of passed repositories have undefined name</value>
+  </data>
+  <data name="NotGitRepo" xml:space="preserve">
+    <value>Current directory is not git repository.</value>
+  </data>
+  <data name="RemoveDefaultJobException" xml:space="preserve">
+    <value>Cannot remove default job</value>
+  </data>
+  <data name="RunJobArgumentsDescription" xml:space="preserve">
+    <value>List of parameters for running job</value>
+  </data>
+  <data name="RunJobDescription" xml:space="preserve">
+    <value>Run job on Jenkins</value>
+  </data>
+  <data name="SettingDescription" xml:space="preserve">
+    <value>Save passed settings in app configuration</value>
+  </data>
+  <data name="ShowConfigurationCommandDescription" xml:space="preserve">
+    <value>Show Jeno configuration</value>
+  </data>
+  <data name="UndefinedToken" xml:space="preserve">
+    <value>User token is undefined</value>
+  </data>
+  <data name="UndefinedUserName" xml:space="preserve">
+    <value>Username is undefined</value>
+  </data>
+  <data name="UnsupportedSetting" xml:space="preserve">
+    <value>Unsupported parameter:</value>
+  </data>
+  <data name="WrongConfigurationParametersFormat" xml:space="preserve">
+    <value>Some of passed options have unhandled format:</value>
+  </data>
+  <data name="WrongReposFormat" xml:space="preserve">
+    <value>Some of passed repositories have unhandled format</value>
+  </data>
+</root>

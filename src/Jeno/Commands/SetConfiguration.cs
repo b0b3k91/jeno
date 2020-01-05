@@ -8,23 +8,25 @@ using System.Text;
 
 namespace Jeno.Commands
 {
-    public class ChangeConfiguration : IJenoCommand
+    public class SetConfiguration : IJenoCommand
     {
         private readonly IConfigurationSerializer _serializer;
+        private readonly IEncryptor _encryptor;
 
         public string Name => "set";
         public Action<CommandLineApplication> Command { get; }
 
-        public ChangeConfiguration(IConfigurationSerializer serializer)
+        public SetConfiguration(IConfigurationSerializer serializer, IEncryptor encryptor)
         {
             _serializer = serializer;
+            _encryptor = encryptor;
 
             Command = (app) =>
             {
-                app.Description = "Set options of app configuration";
+                app.Description = Messages.ChangeConfigurationDescription;
 
-                var settings = app.Argument("options", "List of options to save in app configuration", true).Values;
-                var deleteOption = app.Option("-d|--delete", "Remove passed repository", CommandOptionType.NoValue);
+                var settings = app.Argument("settings", Messages.SettingDescription, true).Values;
+                var deleteOption = app.Option("-d|--delete", Messages.DeleteRepoOptionDescription, CommandOptionType.NoValue);
 
                 app.OnExecuteAsync(async token =>
                 {
@@ -58,6 +60,10 @@ namespace Jeno.Commands
                                 configuration.Token = arg.Value;
                                 break;
 
+                            case "password":
+                                configuration.Password = _encryptor.Encrypt(arg.Value);
+                                break;
+
                             case "repository":
                                 {
                                     var repositories = arg.Value.Split(',');
@@ -65,7 +71,7 @@ namespace Jeno.Commands
                                     if (deleteOption.Values.Count > 0)
                                     {
                                         if (repositories.Any(s => s == "default"))
-                                            throw new JenoException("Cannot remove default job");
+                                            throw new JenoException(Messages.RemoveDefaultJobException);
 
                                         foreach (var repository in repositories)
                                         {
@@ -78,14 +84,14 @@ namespace Jeno.Commands
 
                                     if (repositories.Any(s => !s.Contains('=')))
                                     {
-                                        throw new JenoException("Some of passed repositories have unhandled format");
+                                        throw new JenoException(Messages.WrongReposFormat);
                                     }
 
                                     var repoDictionary = repositories.ToDictionary(s => s.Split('=')[0], s => s.Split('=')[1]);
 
                                     if (repoDictionary.Keys.Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
-                                        throw new JenoException("Some of passed repositories have undefined origin address");
+                                        throw new JenoException(Messages.MissingRepoName);
                                     }
 
                                     foreach (var repoKeyValue in repoDictionary)
@@ -96,7 +102,7 @@ namespace Jeno.Commands
                                 }
 
                             default:
-                                throw new JenoException($"Unsupported parameter: {arg.Key}");
+                                throw new JenoException($"{Messages.UnsupportedSetting}{arg.Key}");
                         }
                     }
 
@@ -124,7 +130,7 @@ namespace Jeno.Commands
                 var incorrectSettings = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
 
                 var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine("Some of passed options have unhandled format:");
+                messageBuilder.AppendLine(Messages.WrongConfigurationParametersFormat);
                 messageBuilder.AppendLine(incorrectSettings);
 
                 return Result.Invalid(messageBuilder.ToString());

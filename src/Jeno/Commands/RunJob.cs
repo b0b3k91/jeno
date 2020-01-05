@@ -22,22 +22,24 @@ namespace Jeno.Commands
         private readonly HttpClient _client;
         private readonly JenoConfiguration _configuration;
         private readonly IPasswordProvider _passwordProvider;
+        private readonly IEncryptor _encryptor;
 
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitClient gitWrapper, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
+        public RunJob(IGitClient gitWrapper, IEncryptor encryptor, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
             _client = factory.CreateClient();
             _configuration = configuration.Value;
             _passwordProvider = passwordProvider;
+            _encryptor = encryptor;
 
             Command = (CommandLineApplication app) =>
             {
-                app.Description = "Run job on Jenkins";
+                app.Description = Messages.RunJobDescription;
 
-                var jobParameters = app.Argument("jobParameters", "List of job parameters", true);
+                var jobParameters = app.Argument("jobParameters", Messages.RunJobArgumentsDescription, true);
 
                 app.OnExecuteAsync(async token =>
                 {
@@ -51,15 +53,15 @@ namespace Jeno.Commands
 
                     if (!await _gitWrapper.IsGitRepository(Directory.GetCurrentDirectory()))
                     {
-                        throw new JenoException("Current directory is not git repository.");
+                        throw new JenoException(Messages.NotGitRepo);
                     }
 
                     var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
-                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo)
-                            ? _configuration.Repositories[currentRepo]
-                            : _configuration.Repositories[_defaulJobKey];
+                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo) ? 
+                            _configuration.Repositories[currentRepo] : 
+                            _configuration.Repositories[_defaulJobKey];
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
 
@@ -82,7 +84,10 @@ namespace Jeno.Commands
 
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
-                        var password = _passwordProvider.GetPassword();
+                        var password = string.IsNullOrWhiteSpace(_configuration.Password) ?
+                            _passwordProvider.GetPassword() :
+                            _encryptor.Decrypt(_configuration.Password);
+
                         _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.UserName, password);
 
                         var crumbUrl = new Uri(baseUrl, "crumbIssuer/api/json");
@@ -90,7 +95,7 @@ namespace Jeno.Commands
 
                         if (!crumbResponse.IsSuccessStatusCode)
                         {
-                            throw new JenoException($"Cannot get crumb for CSRF protection system: {crumbResponse.ReasonPhrase}");
+                            throw new JenoException($"{Messages.CsrfException}: {crumbResponse.ReasonPhrase}");
                         }
 
                         var crumbHeader = JsonConvert.DeserializeObject<CrumbHeader>(await crumbResponse.Content.ReadAsStringAsync());
@@ -100,7 +105,7 @@ namespace Jeno.Commands
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        throw new JenoException($"Cannot run job: {response.ReasonPhrase}");
+                        throw new JenoException($"{Messages.JobException}: {response.ReasonPhrase}");
                     }
 
                     return JenoCodes.Ok;
@@ -114,29 +119,29 @@ namespace Jeno.Commands
 
             if (!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
             {
-                messageBuilder.AppendLine("Jenkins address is undefined or incorrect");
-                messageBuilder.AppendLine("Use \"jeno set jenkinsUrl:[url]\" command to save correct Jenkins address");
+                messageBuilder.AppendLine(Messages.IncorrectJenkinsAddress);
+                messageBuilder.AppendLine(Messages.ConfigureJenkinsAddressTip);
             }
 
             if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
             {
-                messageBuilder.AppendLine("Missing default job");
-                messageBuilder.AppendLine("Use \"jeno set repository:default=[defaultJob]\" command to save default job");
+                messageBuilder.AppendLine(Messages.MissingDefaultJob);
+                messageBuilder.AppendLine(Messages.ConfigureDefaultJobTip);
             }
 
             if (string.IsNullOrEmpty(_configuration.UserName))
             {
-                messageBuilder.AppendLine("Username is undefined");
-                messageBuilder.AppendLine("Use \"jeno set userName:[username]\" command to save login");
+                messageBuilder.AppendLine(Messages.UndefinedUserName);
+                messageBuilder.AppendLine(Messages.ConfigureUserNameTip);
             }
 
             if (string.IsNullOrEmpty(_configuration.Token))
             {
                 var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.UserName}/configure");
 
-                messageBuilder.AppendLine("User token is undefined");
-                messageBuilder.AppendLine($"Token can be generated on {configurationUrl.AbsoluteUri}");
-                messageBuilder.AppendLine("Use \"jeno set token:[token]\" command to save authorization token");
+                messageBuilder.AppendLine(Messages.UndefinedToken);
+                messageBuilder.AppendLine($"{Messages.JenkinsConfigurationAddressMessage} {configurationUrl.AbsoluteUri}");
+                messageBuilder.AppendLine(Messages.ConfigureTokenTip);
             }
 
             return messageBuilder.Length > 0 ? Result.Invalid(messageBuilder.ToString()) : Result.Ok();
@@ -149,7 +154,7 @@ namespace Jeno.Commands
                 var invalidParameters = string.Join(", ", parameters.Where(s => !s.Contains("=")));
 
                 var message = new StringBuilder();
-                message.AppendLine("Some of job parameters have incorrect format");
+                message.AppendLine(Messages.IncorrectJobParameters);
                 message.AppendLine(invalidParameters);
 
                 return Result.Invalid(message.ToString());

@@ -27,7 +27,7 @@ namespace Jeno.UnitTests
         private readonly string _defaultJob = "defaultJob";
 
         private readonly string _branch = "master";
-        private readonly string _password = "qwerty123";
+        private readonly string _password = "Qwerty123";
 
         private readonly string _crumbContentType = "application/json";
 
@@ -58,7 +58,11 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
+            var command = new RunJob(gitWrapper.Object, 
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -78,6 +82,7 @@ namespace Jeno.UnitTests
                 JenkinsUrl = _jenkinsUrl,
                 UserName = _userName,
                 Token = _token,
+                Password = _password,
                 Repositories = new Dictionary<string, string>()
                 {
                     { exampleRepo, exampleJob },
@@ -102,7 +107,11 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(gitWrapper.Object, 
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object, 
+                httpClientFactory.Object, 
+                GetOptionsMock(configuration).Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -130,7 +139,11 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
+            var command = new RunJob(gitWrapper.Object, 
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object, 
+                httpClientFactory.Object,
+                GetOptionsMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -148,6 +161,7 @@ namespace Jeno.UnitTests
                 JenkinsUrl = _jenkinsUrl,
                 UserName = string.Empty,
                 Token = _token,
+                Password = _password,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
@@ -164,7 +178,12 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(GetDefaultGitMock().Object, 
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object, 
+                GetOptionsMock(configuration).Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -181,6 +200,7 @@ namespace Jeno.UnitTests
                 JenkinsUrl = _jenkinsUrl,
                 UserName = _userName,
                 Token = string.Empty,
+                Password = _password,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
@@ -197,7 +217,12 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock(configuration).Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -231,7 +256,12 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object, 
+                httpClientFactory.Object, 
+                GetOptionsMock(configuration).Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -268,7 +298,12 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock(configuration).Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -285,6 +320,7 @@ namespace Jeno.UnitTests
                 JenkinsUrl = _jenkinsUrl,
                 UserName = _userName,
                 Token = _token,
+                Password = _password,
                 Repositories = new Dictionary<string, string>()
                 {
                     { "firstExampleRepoUrl", "firstExampleJob" },
@@ -300,7 +336,12 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock(configuration));
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock(configuration).Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
@@ -335,13 +376,75 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock().Object);
+
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
 
             var result = await app.ExecuteAsync(new string[] { _command });
 
             Assert.That(result, Is.EqualTo(JenoCodes.Ok));
+        }
+
+        [Test]
+        public async Task TryToRunJobOnJenkinsWithCSRFProtectionWithoutSavedPassword_AskUserForPassword()
+        {
+            var basicAuthHeader = new BasicAuthenticationHeader(_userName, _password);
+            var tokenAuthHeader = new BearerAuthenticationHeader(_token);
+
+            var configuration = new JenoConfiguration
+            {
+                JenkinsUrl = _jenkinsUrl,
+                UserName = _userName,
+                Token = _token,
+                Password = string.Empty,
+                Repositories = new Dictionary<string, string>()
+                    {
+                        { "firstExampleRepoUrl", "firstExampleJob" },
+                        { "secondExampleRepoUrl", "secondExampleJob" },
+                        { _defaultKey,  _defaultJob},
+                    }
+            };
+
+            var client = new MockHttpMessageHandler();
+            client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
+                .WithHeaders("Authorization", $"{tokenAuthHeader.Scheme} {tokenAuthHeader.Parameter}")
+                .Respond(request => new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    ReasonPhrase = "No valid crumb was included in the request"
+                });
+            client.Expect($"{_jenkinsUrl}/crumbIssuer/api/json")
+                .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
+                .Respond(_crumbContentType, JsonConvert.SerializeObject(_crumbHeader));
+            client.Expect($"{_jenkinsUrl}/job/{_defaultJob}/{_branch}/buildWithParameters")
+                .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
+                .WithHeaders(_crumbHeader.CrumbRequestField, _crumbHeader.Crumb)
+                .Respond(HttpStatusCode.OK);
+
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
+                .Returns(client.ToHttpClient());
+
+            var passwordProvider = GetPasswordProviderMock();
+
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                passwordProvider.Object,
+                httpClientFactory.Object,
+                GetOptionsMock(configuration).Object);
+
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            var result = await app.ExecuteAsync(new string[] { _command });
+
+            Assert.That(result, Is.EqualTo(JenoCodes.Ok));
+            passwordProvider.Verify(s => s.GetPassword(), Times.AtLeastOnce);
         }
 
         [Test]
@@ -362,7 +465,11 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -392,7 +499,11 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(DefaultGitMock, PasswordProviderMock, httpClientFactory.Object, GetOptionsMock());
+            var command = new RunJob(GetDefaultGitMock().Object,
+                GetEncryptorMock().Object,
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
+                GetOptionsMock().Object);
 
             var app = new CommandLineApplication();
             app.Command(command.Name, command.Command);
@@ -406,7 +517,7 @@ namespace Jeno.UnitTests
                 .And.Property(nameof(JenoException.Message)).Not.Contains("sendEmail=true"));
         }
 
-        private IOptions<JenoConfiguration> GetOptionsMock(JenoConfiguration configuration = null)
+        private Mock<IOptions<JenoConfiguration>> GetOptionsMock(JenoConfiguration configuration = null)
         {
             if (configuration == null)
             {
@@ -415,6 +526,7 @@ namespace Jeno.UnitTests
                     JenkinsUrl = _jenkinsUrl,
                     UserName = _userName,
                     Token = _token,
+                    Password = _password,
                     Repositories = new Dictionary<string, string>()
                     {
                         { "firstExampleRepoUrl", "firstExampleJob" },
@@ -428,13 +540,11 @@ namespace Jeno.UnitTests
             options.Setup(c => c.Value)
                 .Returns(configuration);
 
-            return options.Object;
+            return options;
         }
 
-        private IGitClient DefaultGitMock
+        private Mock<IGitClient> GetDefaultGitMock()
         {
-            get
-            {
                 var gitWrapper = new Mock<IGitClient>();
                 gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
                     .Returns(Task.FromResult(true));
@@ -443,20 +553,25 @@ namespace Jeno.UnitTests
                 gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
                     .Returns(Task.FromResult(_branch));
 
-                return gitWrapper.Object;
-            }
+                return gitWrapper;
         }
 
-        private IPasswordProvider PasswordProviderMock
+        private Mock<IPasswordProvider> GetPasswordProviderMock()
         {
-            get
-            {
-                var passwordProvider = new Mock<IPasswordProvider>();
-                passwordProvider.Setup(s => s.GetPassword())
-                    .Returns(_password);
+            var passwordProvider = new Mock<IPasswordProvider>();
+            passwordProvider.Setup(s => s.GetPassword())
+                .Returns(_password);
 
-                return passwordProvider.Object;
-            }
+            return passwordProvider;
+        }
+
+        private Mock<IEncryptor> GetEncryptorMock()
+        {
+            var encryptor = new Mock<IEncryptor>();
+            encryptor.Setup(s => s.Decrypt(It.IsAny<string>()))
+                .Returns(_password);
+
+            return encryptor;
         }
     }
 }
