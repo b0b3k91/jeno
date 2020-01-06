@@ -1,6 +1,6 @@
-﻿using Jeno.Core;
+﻿using System;
+using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
-using System;
 
 namespace Jeno.Commands
 {

@@ -1,5 +1,5 @@
-﻿using McMaster.Extensions.CommandLineUtils;
-using System;
+﻿using System;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace Jeno.Core
 {

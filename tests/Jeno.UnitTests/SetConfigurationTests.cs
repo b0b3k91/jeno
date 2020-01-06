@@ -1,11 +1,11 @@
-﻿using Jeno.Commands;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Jeno.Commands;
 using Jeno.Core;
 using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Moq;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Jeno.UnitTests
 {

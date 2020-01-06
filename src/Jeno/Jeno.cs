@@ -1,12 +1,12 @@
-﻿using Jeno.Commands;
+﻿using System;
+using System.Threading.Tasks;
+using Jeno.Commands;
 using Jeno.Core;
 using Jeno.Interfaces;
 using Jeno.Services;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

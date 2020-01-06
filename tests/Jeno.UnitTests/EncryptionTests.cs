@@ -1,13 +1,10 @@
 ﻿using Jeno.Services;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Jeno.UnitTests
 {
     [TestFixture]
-    class EncryptionTests
+    public class EncryptionTests
     {
         private const string Password = "Qwerty123";
 

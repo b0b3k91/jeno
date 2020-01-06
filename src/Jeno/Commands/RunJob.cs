@@ -1,16 +1,16 @@
-﻿using Jeno.Core;
-using Jeno.Infrastructure;
-using Jeno.Interfaces;
-using McMaster.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using Jeno.Core;
+using Jeno.Infrastructure;
+using Jeno.Interfaces;
+using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Jeno.Commands
 {
@@ -59,8 +59,8 @@ namespace Jeno.Commands
                     var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
-                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo) ? 
-                            _configuration.Repositories[currentRepo] : 
+                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo) ?
+                            _configuration.Repositories[currentRepo] :
                             _configuration.Repositories[_defaulJobKey];
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");

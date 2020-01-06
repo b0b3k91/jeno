@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Jeno.Commands;
 using Jeno.Core;
 using Jeno.Infrastructure;
@@ -8,10 +12,6 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Jeno.UnitTests
 {
@@ -58,7 +58,7 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, 
+            var command = new RunJob(gitWrapper.Object,
                 GetEncryptorMock().Object,
                 GetPasswordProviderMock().Object,
                 httpClientFactory.Object,
@@ -107,10 +107,10 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, 
+            var command = new RunJob(gitWrapper.Object,
                 GetEncryptorMock().Object,
-                GetPasswordProviderMock().Object, 
-                httpClientFactory.Object, 
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
                 GetOptionsMock(configuration).Object);
 
             var app = new CommandLineApplication();
@@ -139,9 +139,9 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(gitWrapper.Object, 
+            var command = new RunJob(gitWrapper.Object,
                 GetEncryptorMock().Object,
-                GetPasswordProviderMock().Object, 
+                GetPasswordProviderMock().Object,
                 httpClientFactory.Object,
                 GetOptionsMock().Object);
 
@@ -178,10 +178,10 @@ namespace Jeno.UnitTests
             httpClientFactory.Setup(s => s.CreateClient(It.IsAny<string>()))
                 .Returns(client.ToHttpClient());
 
-            var command = new RunJob(GetDefaultGitMock().Object, 
+            var command = new RunJob(GetDefaultGitMock().Object,
                 GetEncryptorMock().Object,
                 GetPasswordProviderMock().Object,
-                httpClientFactory.Object, 
+                httpClientFactory.Object,
                 GetOptionsMock(configuration).Object);
 
             var app = new CommandLineApplication();
@@ -258,8 +258,8 @@ namespace Jeno.UnitTests
 
             var command = new RunJob(GetDefaultGitMock().Object,
                 GetEncryptorMock().Object,
-                GetPasswordProviderMock().Object, 
-                httpClientFactory.Object, 
+                GetPasswordProviderMock().Object,
+                httpClientFactory.Object,
                 GetOptionsMock(configuration).Object);
 
             var app = new CommandLineApplication();
@@ -545,15 +545,15 @@ namespace Jeno.UnitTests
 
         private Mock<IGitClient> GetDefaultGitMock()
         {
-                var gitWrapper = new Mock<IGitClient>();
-                gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
-                    .Returns(Task.FromResult(true));
-                gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
-                    .Returns(Task.FromResult(_defaultKey));
-                gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
-                    .Returns(Task.FromResult(_branch));
+            var gitWrapper = new Mock<IGitClient>();
+            gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
+            gitWrapper.Setup(s => s.GetRepoName(It.IsAny<string>()))
+                .Returns(Task.FromResult(_defaultKey));
+            gitWrapper.Setup(s => s.GetCurrentBranch(It.IsAny<string>()))
+                .Returns(Task.FromResult(_branch));
 
-                return gitWrapper;
+            return gitWrapper;
         }
 
         private Mock<IPasswordProvider> GetPasswordProviderMock()

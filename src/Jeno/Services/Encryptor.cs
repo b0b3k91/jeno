@@ -1,10 +1,8 @@
-﻿using Jeno.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Management;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
+using Jeno.Interfaces;
 
 namespace Jeno.Services
 {

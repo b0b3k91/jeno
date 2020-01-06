@@ -1,5 +1,5 @@
-﻿using Jeno.Interfaces;
-using System;
+﻿using System;
+using Jeno.Interfaces;
 
 namespace Jeno.Services
 {

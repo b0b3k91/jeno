@@ -1,5 +1,5 @@
-﻿using Jeno.Core;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Jeno.Core;
 
 namespace Jeno.Interfaces
 {

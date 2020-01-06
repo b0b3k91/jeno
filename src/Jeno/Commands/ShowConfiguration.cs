@@ -1,7 +1,7 @@
-﻿using Jeno.Core;
+﻿using System;
+using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
-using System;
 using YamlDotNet.Serialization;
 
 namespace Jeno.Commands

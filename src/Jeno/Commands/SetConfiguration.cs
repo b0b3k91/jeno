@@ -1,10 +1,10 @@
-﻿using Jeno.Core;
-using Jeno.Interfaces;
-using McMaster.Extensions.CommandLineUtils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Jeno.Core;
+using Jeno.Interfaces;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace Jeno.Commands
 {
