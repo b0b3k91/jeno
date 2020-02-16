@@ -3,7 +3,8 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: microsoft/dotnet:sdk
+name: Jeno
+image: microsoft/dotnet:3-sdk
 
 pipelines:
   default:
@@ -11,8 +12,6 @@ pipelines:
         caches:
           - dotnetcore
         script: # Modify the commands below to build your repository.
-          - export PROJECT_NAME=Jeno
-          - export TEST_NAME=Jeno
           - dotnet restore
-          - dotnet build $PROJECT_NAME
-          - dotnet test $TEST_NAME
+          - dotnet build
+          - dotnet test
