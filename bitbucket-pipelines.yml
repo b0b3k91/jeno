@@ -12,6 +12,7 @@ pipelines:
         caches:
           - dotnetcore
         script: # Modify the commands below to build your repository.
+          - dotnet --version
           - dotnet restore
           - dotnet build
           - dotnet test
