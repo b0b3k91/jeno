@@ -36,5 +36,10 @@ namespace Jeno.Services
 
             return input;
         }
+
+        public void WriteLine(string text)
+        {
+            Console.WriteLine(text);
+        }
     }
 }

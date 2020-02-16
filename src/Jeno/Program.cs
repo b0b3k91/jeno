@@ -28,7 +28,6 @@ namespace Jeno
             var container = new ServiceCollection()
                 .Configure<JenoConfiguration>(configuration.GetSection("jeno"))
                 .AddHttpClient()
-                .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton(serializer)
                 .AddSingleton<IUserConsole, UserConsole>()
                 .AddSingleton<IEncryptor, Encryptor>()

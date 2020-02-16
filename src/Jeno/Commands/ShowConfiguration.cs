@@ -1,5 +1,6 @@
 ﻿using System;
 using Jeno.Core;
+using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using YamlDotNet.Serialization;
@@ -13,14 +14,14 @@ namespace Jeno.Commands
         public Action<CommandLineApplication> Command { get; }
 
         private readonly JenoConfiguration _configuration;
-        private readonly IConsole _console;
-        private readonly ISerializer _serializer;
+        private readonly IUserConsole _console;
+        private readonly ISerializer _yamlSerializer;
 
-        public ShowConfiguration(ISerializer serializer, IOptions<JenoConfiguration> configuration, IConsole console)
+        public ShowConfiguration(ISerializer yamlSerializer, IOptions<JenoConfiguration> configuration, IUserConsole console)
         {
             _configuration = configuration.Value;
             _console = console;
-            _serializer = serializer;
+            _yamlSerializer = yamlSerializer;
 
             Command = (app) =>
             {
@@ -28,7 +29,7 @@ namespace Jeno.Commands
 
                 app.OnExecuteAsync(async token =>
                 {
-                    _console.WriteLine(_serializer.Serialize(_configuration));
+                    _console.WriteLine(_yamlSerializer.Serialize(_configuration));
                     return JenoCodes.Ok;
                 });
             };
