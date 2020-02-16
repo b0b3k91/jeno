@@ -12,7 +12,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Jeno
 {
-    internal class Jeno
+    internal class Program
     {
         public static async Task<int> Main(string[] args)
         {
@@ -30,7 +30,7 @@ namespace Jeno
                 .AddHttpClient()
                 .AddSingleton(PhysicalConsole.Singleton)
                 .AddSingleton(serializer)
-                .AddSingleton<IPasswordProvider, PasswordProvider>()
+                .AddSingleton<IUserConsole, UserConsole>()
                 .AddSingleton<IEncryptor, Encryptor>()
                 .AddSingleton<IGitClient, GitClient>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()

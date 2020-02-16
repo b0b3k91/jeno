@@ -139,7 +139,7 @@
     <value>Cannot get crumb for CSRF protection system:</value>
   </data>
   <data name="DeleteRepoOptionDescription" xml:space="preserve">
-    <value>Remove passed repository from configuration</value>
+    <value>Remove selected repository from configuration</value>
   </data>
   <data name="HelpCommandDescription" xml:space="preserve">
     <value>List of available commands</value>
@@ -150,7 +150,7 @@
   <data name="IncorrectJobParameters" xml:space="preserve">
     <value>Some of job parameters have incorrect format</value>
   </data>
-  <data name="JenkinsConfigurationAddressMessage" xml:space="preserve">
+  <data name="JenkinsConfigurationAddressTip" xml:space="preserve">
     <value>Token can be generated on</value>
   </data>
   <data name="JenoDescription" xml:space="preserve">

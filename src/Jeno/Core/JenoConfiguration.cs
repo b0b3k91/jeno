@@ -8,6 +8,6 @@ namespace Jeno.Core
         public string UserName { get; set; }
         public string Token { get; set; }
         public string Password { get; set; }
-        public Dictionary<string, string> Repositories { get; set; }
+        public Dictionary<string, string> Repository { get; set; }
     }
 }

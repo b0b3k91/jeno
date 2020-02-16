@@ -124,7 +124,7 @@ namespace Jeno {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove passed repository from configuration.
+        ///   Looks up a localized string similar to Remove selected repository from configuration.
         /// </summary>
         internal static string DeleteRepoOptionDescription {
             get {
@@ -162,9 +162,9 @@ namespace Jeno {
         /// <summary>
         ///   Looks up a localized string similar to Token can be generated on.
         /// </summary>
-        internal static string JenkinsConfigurationAddressMessage {
+        internal static string JenkinsConfigurationAddressTip {
             get {
-                return ResourceManager.GetString("JenkinsConfigurationAddressMessage", resourceCulture);
+                return ResourceManager.GetString("JenkinsConfigurationAddressTip", resourceCulture);
             }
         }
         

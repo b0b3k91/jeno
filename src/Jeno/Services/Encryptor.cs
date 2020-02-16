@@ -1,27 +1,13 @@
 ﻿using System;
-using System.Management;
-using System.Security.Cryptography;
 using System.Text;
+using System.Security.Cryptography;
 using Jeno.Interfaces;
 
 namespace Jeno.Services
 {
     public class Encryptor : IEncryptor
     {
-        private readonly byte[] _entropyBytes;
-
-        public Encryptor()
-        {
-            using (var sha = SHA256.Create())
-            {
-                var mos = new ManagementObjectSearcher("SELECT SerialNumber FROM Win32_BaseBoard");
-                foreach (var mo in mos.Get())
-                {
-                    var number = mo["SerialNumber"].ToString();
-                    _entropyBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(mo["SerialNumber"].ToString()));
-                }
-            }
-        }
+        private readonly byte[] _entropyBytes = Encoding.ASCII.GetBytes("Does the Pope shit in the woods?");
 
         public string Decrypt(string encryptedString)
         {

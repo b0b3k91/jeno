@@ -21,18 +21,18 @@ namespace Jeno.Commands
         private readonly IGitClient _gitWrapper;
         private readonly HttpClient _client;
         private readonly JenoConfiguration _configuration;
-        private readonly IPasswordProvider _passwordProvider;
+        private readonly IUserConsole _userConsole;
         private readonly IEncryptor _encryptor;
 
         public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
 
-        public RunJob(IGitClient gitWrapper, IEncryptor encryptor, IPasswordProvider passwordProvider, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
+        public RunJob(IGitClient gitWrapper, IEncryptor encryptor, IUserConsole userConsole, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
         {
             _gitWrapper = gitWrapper;
             _client = factory.CreateClient();
             _configuration = configuration.Value;
-            _passwordProvider = passwordProvider;
+            _userConsole = userConsole;
             _encryptor = encryptor;
 
             Command = (CommandLineApplication app) =>
@@ -59,9 +59,9 @@ namespace Jeno.Commands
                     var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());
                     var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
 
-                    var pipeline = _configuration.Repositories.ContainsKey(currentRepo) ?
-                            _configuration.Repositories[currentRepo] :
-                            _configuration.Repositories[_defaulJobKey];
+                    var pipeline = _configuration.Repository.ContainsKey(currentRepo) ?
+                            _configuration.Repository[currentRepo] :
+                            _configuration.Repository[_defaulJobKey];
 
                     var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
 
@@ -85,7 +85,7 @@ namespace Jeno.Commands
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
                         var password = string.IsNullOrWhiteSpace(_configuration.Password) ?
-                            _passwordProvider.GetPassword() :
+                            _userConsole.GetInput("password", true) :
                             _encryptor.Decrypt(_configuration.Password);
 
                         _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.UserName, password);
@@ -123,7 +123,7 @@ namespace Jeno.Commands
                 messageBuilder.AppendLine(Messages.ConfigureJenkinsAddressTip);
             }
 
-            if (!_configuration.Repositories.ContainsKey(_defaulJobKey))
+            if (!_configuration.Repository.ContainsKey(_defaulJobKey))
             {
                 messageBuilder.AppendLine(Messages.MissingDefaultJob);
                 messageBuilder.AppendLine(Messages.ConfigureDefaultJobTip);
@@ -140,7 +140,7 @@ namespace Jeno.Commands
                 var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.UserName}/configure");
 
                 messageBuilder.AppendLine(Messages.UndefinedToken);
-                messageBuilder.AppendLine($"{Messages.JenkinsConfigurationAddressMessage} {configurationUrl.AbsoluteUri}");
+                messageBuilder.AppendLine($"{Messages.JenkinsConfigurationAddressTip} {configurationUrl.AbsoluteUri}");
                 messageBuilder.AppendLine(Messages.ConfigureTokenTip);
             }
 

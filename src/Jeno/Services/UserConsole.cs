@@ -3,13 +3,13 @@ using Jeno.Interfaces;
 
 namespace Jeno.Services
 {
-    public class PasswordProvider : IPasswordProvider
+    public class UserConsole : IUserConsole
     {
-        public string GetPassword()
+        public string GetInput(string parameterName, bool hideInput = false)
         {
-            string password = string.Empty;
+            string input = string.Empty;
 
-            Console.Write("Password:");
+            Console.Write($"{parameterName}:");
 
             while (true)
             {
@@ -17,9 +17,9 @@ namespace Jeno.Services
 
                 if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (password.Length > 0)
+                    if (input.Length > 0)
                     {
-                        password = password.Remove(password.Length - 1);
+                        input = input.Remove(input.Length - 1);
                         Console.Write("\b \b");
                     }
                 }
@@ -29,12 +29,12 @@ namespace Jeno.Services
                 }
                 else
                 {
-                    password += key.KeyChar;
-                    Console.Write("*");
+                    input += key.KeyChar;
+                    Console.Write(hideInput ? '*' : key.KeyChar);
                 }
             }
 
-            return password;
+            return input;
         }
     }
 }

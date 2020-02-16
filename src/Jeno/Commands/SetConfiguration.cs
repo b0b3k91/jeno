@@ -12,14 +12,16 @@ namespace Jeno.Commands
     {
         private readonly IConfigurationSerializer _serializer;
         private readonly IEncryptor _encryptor;
+        private readonly IUserConsole _userConsole;
 
         public string Name => "set";
         public Action<CommandLineApplication> Command { get; }
 
-        public SetConfiguration(IConfigurationSerializer serializer, IEncryptor encryptor)
+        public SetConfiguration(IConfigurationSerializer serializer, IEncryptor encryptor, IUserConsole userConsole)
         {
             _serializer = serializer;
             _encryptor = encryptor;
+            _userConsole = userConsole;
 
             Command = (app) =>
             {
@@ -30,43 +32,42 @@ namespace Jeno.Commands
 
                 app.OnExecuteAsync(async token =>
                 {
-                    var validationResult = ValidateSettings(settings);
-
-                    if (!validationResult.IsSuccess)
-                    {
-                        throw new JenoException(validationResult.ErrorMessage);
-                    }
-
                     var configuration = await _serializer.ReadConfiguration();
 
-                    var args = settings
-                        .Where(s => s.Contains(':'))
-                        .Select(s => ParseSetting(s))
-                        .ToDictionary(k => k.Key, v => v.Value) ?? new Dictionary<string, string>();
+                    var args = settings.Select(s => ParseSetting(s));
 
                     foreach (var arg in args)
                     {
-                        switch (arg.Key)
+                        switch (arg.Item1)
                         {
                             case "jenkinsurl":
-                                configuration.JenkinsUrl = arg.Value;
+                                configuration.JenkinsUrl = ReadSettingValue(arg.Item1, arg.Item2);
                                 break;
 
                             case "username":
-                                configuration.UserName = arg.Value;
+                                configuration.UserName = ReadSettingValue(arg.Item1, arg.Item2);
                                 break;
 
                             case "token":
-                                configuration.Token = arg.Value;
+                                configuration.Token = ReadSettingValue(arg.Item1, arg.Item2);
                                 break;
 
                             case "password":
-                                configuration.Password = _encryptor.Encrypt(arg.Value);
+                                configuration.Password = ReadSettingValue(arg.Item1, arg.Item2, true);
                                 break;
 
                             case "repository":
                                 {
-                                    var repositories = arg.Value.Split(',');
+                                    if (string.IsNullOrWhiteSpace(arg.Item2))
+                                    {
+                                        var repositoryName = _userConsole.GetInput("repository name");
+                                        var jenkinsJob = _userConsole.GetInput("jenkins job");
+
+                                        configuration.Repository[repositoryName] = jenkinsJob;
+                                        break;
+                                    }
+
+                                    var repositories = arg.Item2.Split(',');
 
                                     if (deleteOption.Values.Count > 0)
                                     {
@@ -75,8 +76,10 @@ namespace Jeno.Commands
 
                                         foreach (var repository in repositories)
                                         {
-                                            if (configuration.Repositories.ContainsKey(repository))
-                                                configuration.Repositories.Remove(repository);
+                                            if (configuration.Repository.ContainsKey(repository))
+                                            {
+                                                configuration.Repository.Remove(repository);
+                                            }
                                         }
 
                                         break;
@@ -87,22 +90,22 @@ namespace Jeno.Commands
                                         throw new JenoException(Messages.WrongReposFormat);
                                     }
 
-                                    var repoDictionary = repositories.ToDictionary(s => s.Split('=')[0], s => s.Split('=')[1]);
+                                    var repos = repositories.Select(s => (s.Split('=')[0], s.Split('=')[1]));
 
-                                    if (repoDictionary.Keys.Any(s => string.IsNullOrWhiteSpace(s)))
+                                    if (repos.Select(s => s.Item1).Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
                                         throw new JenoException(Messages.MissingRepoName);
                                     }
 
-                                    foreach (var repoKeyValue in repoDictionary)
+                                    foreach (var repo in repos)
                                     {
-                                        configuration.Repositories[repoKeyValue.Key] = repoKeyValue.Value;
+                                        configuration.Repository[repo.Item1] = repo.Item2;
                                     }
                                     break;
                                 }
 
                             default:
-                                throw new JenoException($"{Messages.UnsupportedSetting}{arg.Key}");
+                                throw new JenoException($"{Messages.UnsupportedSetting}{arg.Item1}");
                         }
                     }
 
@@ -112,31 +115,27 @@ namespace Jeno.Commands
             };
         }
 
-        private KeyValuePair<string, string> ParseSetting(string setting)
+        private (string, string) ParseSetting(string setting)
         {
             //only first colon should be treated like separator,
             //others (like the ones in url addresses) must be ignored.
-            return new KeyValuePair<string, string>
-                (
-                    key: setting.Split(':').First().ToLower(),
-                    value: string.Join(':', setting.Split(':').Skip(1))
-                );
+            return (setting.Split(':').First().ToLower(), string.Join(':', setting.Split(':').Skip(1)));
         }
 
-        private Result ValidateSettings(List<string> settings)
+        private string ReadSettingValue(string parameterName, string parameterValue, bool encrypt = false)
         {
-            if (settings.Any(s => !s.Contains(':')))
+            if (encrypt)
             {
-                var incorrectSettings = string.Join(", ", settings.Where(s => !s.Contains(':')).ToArray());
-
-                var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine(Messages.WrongConfigurationParametersFormat);
-                messageBuilder.AppendLine(incorrectSettings);
-
-                return Result.Invalid(messageBuilder.ToString());
+                return string.IsNullOrWhiteSpace(parameterValue) ?
+                    _encryptor.Encrypt(_userConsole.GetInput(parameterName, true)) :
+                    _encryptor.Encrypt(parameterValue);
             }
-
-            return Result.Ok();
+            else
+            {
+                return string.IsNullOrWhiteSpace(parameterValue) ?
+                    _userConsole.GetInput(parameterName) :
+                    parameterValue;
+            }
         }
     }
 }
