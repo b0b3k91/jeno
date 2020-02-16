@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Jeno.UnitTests
 {
-    [TestFixture]
+    [TestFixture(Category = "Encryption")]
     public class EncryptionTests
     {
         private const string Password = "Qwerty123";

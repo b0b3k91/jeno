@@ -14,4 +14,4 @@ pipelines:
         script: # Modify the commands below to build your repository.
           - dotnet restore
           - dotnet build
-          - dotnet test
+          - dotnet test --filter "Category!=Encryption"
