@@ -4,7 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 name: Jeno
-image: microsoft/dotnet:sdk
+image: mcr.microsoft.com/dotnet/core/sdk:3.0
 
 pipelines:
   default:
@@ -12,7 +12,6 @@ pipelines:
         caches:
           - dotnetcore
         script: # Modify the commands below to build your repository.
-          - dotnet --version
           - dotnet restore
           - dotnet build
           - dotnet test
