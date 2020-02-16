@@ -4,7 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 name: Jeno
-image: mcr.microsoft.com/dotnet/core/sdk:3.0
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
 pipelines:
   default:
