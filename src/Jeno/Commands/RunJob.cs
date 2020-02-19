@@ -85,7 +85,7 @@ namespace Jeno.Commands
                     if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
                     {
                         var password = string.IsNullOrWhiteSpace(_configuration.Password) ?
-                            _userConsole.GetInput("password", true) :
+                            _userConsole.ReadInput("password", true) :
                             _encryptor.Decrypt(_configuration.Password);
 
                         _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeader(_configuration.UserName, password);

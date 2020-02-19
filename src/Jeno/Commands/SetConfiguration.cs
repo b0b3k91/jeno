@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Jeno.Core;
 using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
@@ -35,33 +33,34 @@ namespace Jeno.Commands
                     var configuration = await _serializer.ReadConfiguration();
 
                     var args = settings.Select(s => ParseSetting(s));
+                    var delete = deleteOption.Values.Count > 0;
 
                     foreach (var arg in args)
                     {
                         switch (arg.Item1)
                         {
                             case "jenkinsurl":
-                                configuration.JenkinsUrl = ReadSettingValue(arg.Item1, arg.Item2);
+                                configuration.JenkinsUrl = GetSetting(arg.Item1, arg.Item2, delete);
                                 break;
 
                             case "username":
-                                configuration.UserName = ReadSettingValue(arg.Item1, arg.Item2);
+                                configuration.UserName = GetSetting(arg.Item1, arg.Item2, delete);
                                 break;
 
                             case "token":
-                                configuration.Token = ReadSettingValue(arg.Item1, arg.Item2);
+                                configuration.Token = GetSetting(arg.Item1, arg.Item2, delete);
                                 break;
 
                             case "password":
-                                configuration.Password = ReadSettingValue(arg.Item1, arg.Item2, true);
+                                configuration.Password = GetSetting(arg.Item1, arg.Item2, delete, true);
                                 break;
 
                             case "repository":
                                 {
                                     if (string.IsNullOrWhiteSpace(arg.Item2))
                                     {
-                                        var repositoryName = _userConsole.GetInput("repository name");
-                                        var jenkinsJob = _userConsole.GetInput("jenkins job");
+                                        var repositoryName = _userConsole.ReadInput("repository name");
+                                        var jenkinsJob = _userConsole.ReadInput("jenkins job");
 
                                         configuration.Repository[repositoryName] = jenkinsJob;
                                         break;
@@ -69,7 +68,7 @@ namespace Jeno.Commands
 
                                     var repositories = arg.Item2.Split(',');
 
-                                    if (deleteOption.Values.Count > 0)
+                                    if (delete)
                                     {
                                         if (repositories.Any(s => s == "default"))
                                             throw new JenoException(Messages.RemoveDefaultJobException);
@@ -122,19 +121,24 @@ namespace Jeno.Commands
             return (setting.Split(':').First().ToLower(), string.Join(':', setting.Split(':').Skip(1)));
         }
 
-        private string ReadSettingValue(string parameterName, string parameterValue, bool encrypt = false)
+        private string GetSetting(string settingName, string passedValue, bool returnEmpty, bool encrypt = false)
         {
+            if (returnEmpty)
+            {
+                return string.Empty;
+            }
+
             if (encrypt)
             {
-                return string.IsNullOrWhiteSpace(parameterValue) ?
-                    _encryptor.Encrypt(_userConsole.GetInput(parameterName, true)) :
-                    _encryptor.Encrypt(parameterValue);
+                return string.IsNullOrWhiteSpace(passedValue) ?
+                    _encryptor.Encrypt(_userConsole.ReadInput(settingName, true)) :
+                    _encryptor.Encrypt(passedValue);
             }
             else
             {
-                return string.IsNullOrWhiteSpace(parameterValue) ?
-                    _userConsole.GetInput(parameterName) :
-                    parameterValue;
+                return string.IsNullOrWhiteSpace(passedValue) ?
+                    _userConsole.ReadInput(settingName) :
+                    passedValue;
             }
         }
     }

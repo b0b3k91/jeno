@@ -5,7 +5,7 @@ namespace Jeno.Services
 {
     public class UserConsole : IUserConsole
     {
-        public string GetInput(string parameterName, bool hideInput = false)
+        public string ReadInput(string parameterName, bool hideInput = false)
         {
             string input = string.Empty;
 
@@ -25,6 +25,7 @@ namespace Jeno.Services
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
+                    Console.WriteLine();
                     break;
                 }
                 else

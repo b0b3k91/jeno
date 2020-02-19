@@ -2,7 +2,7 @@
 {
     public interface IUserConsole
     {
-        string GetInput(string parameterName, bool hideInput = false);
+        string ReadInput(string parameterName, bool hideInput = false);
 
         void WriteLine(string text);
     }

@@ -35,7 +35,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.JenkinsUrl, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Never);
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Jeno.UnitTests
         {
             var parameter = "jenkinsUrl";
             var value = "http://new_jenkins_host:8080";
-            var args = new string[] { Command, parameter};
+            var args = new string[] { Command, parameter };
 
             var configuration = GetDefaultConfiguration();
             var userConsole = GetUserConsoleMock(parameter.ToLower(), value);
@@ -56,7 +56,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.JenkinsUrl, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Once);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.UserName, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Never);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.UserName, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Once);
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.Token, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Never);
         }
 
         [Test]
@@ -140,7 +140,7 @@ namespace Jeno.UnitTests
 
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.Token, Is.EqualTo(value));
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Once);
         }
 
         [Test]
@@ -163,7 +163,29 @@ namespace Jeno.UnitTests
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.Password, Is.EqualTo(value));
             encryptor.Verify(e => e.Encrypt(value), Times.Once());
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), true), Times.Never);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), true), Times.Never);
+        }
+
+        [Test]
+        public async Task RemovePassword_PasswordFieldInConfigurationIsEmpty()
+        {
+            var parameter = "password";
+            var args = new string[] { Command, parameter, "-d" };
+
+            var configuration = GetDefaultConfiguration();
+            var encryptor = GetEncryptorMock();
+            var userConsole = GetUserConsoleMock(parameter.ToLower(), It.IsAny<string>(), true);
+
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, encryptor.Object, userConsole.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            var code = await app.ExecuteAsync(args);
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+            Assert.That(configuration.Password, Is.Empty);
+            encryptor.Verify(e => e.Encrypt(It.IsAny<string>()), Times.Never);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), true), Times.Never);
         }
 
         [Test]
@@ -186,7 +208,7 @@ namespace Jeno.UnitTests
             Assert.That(code, Is.EqualTo(JenoCodes.Ok));
             Assert.That(configuration.Password, Is.EqualTo(value));
             encryptor.Verify(e => e.Encrypt(value), Times.Once);
-            userConsole.Verify(c => c.GetInput(parameter.ToLower(), true), Times.Once);
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), true), Times.Once);
         }
 
         [Test]
@@ -201,8 +223,8 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(exampleRepo);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(exampleJob);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(exampleRepo);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(exampleJob);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -214,8 +236,8 @@ namespace Jeno.UnitTests
             Assert.That(configuration.Repository, Contains.Key(exampleRepo));
             Assert.That(configuration.Repository, Contains.Value(exampleJob));
             Assert.That(configuration.Repository[exampleRepo], Is.EqualTo(exampleJob));
-            userConsole.Verify(c => c.GetInput(repoName, false), Times.Never);
-            userConsole.Verify(c => c.GetInput(jenkinsJob, false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(repoName, false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(jenkinsJob, false), Times.Never);
         }
 
         [Test]
@@ -229,8 +251,8 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(exampleRepo);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(exampleJob);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(exampleRepo);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(exampleJob);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -242,8 +264,8 @@ namespace Jeno.UnitTests
             Assert.That(configuration.Repository, Contains.Key(exampleRepo));
             Assert.That(configuration.Repository, Contains.Value(exampleJob));
             Assert.That(configuration.Repository[exampleRepo], Is.EqualTo(exampleJob));
-            userConsole.Verify(c => c.GetInput(repoName, false), Times.Once);
-            userConsole.Verify(c => c.GetInput(jenkinsJob, false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(repoName, false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(jenkinsJob, false), Times.Once);
         }
 
         [Test]
@@ -258,8 +280,8 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(exampleRepo);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(exampleJob);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(exampleRepo);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(exampleJob);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -271,8 +293,8 @@ namespace Jeno.UnitTests
             Assert.That(configuration.Repository, Contains.Key(exampleRepo));
             Assert.That(configuration.Repository, Contains.Value(exampleJob));
             Assert.That(configuration.Repository[exampleRepo], Is.EqualTo(exampleJob));
-            userConsole.Verify(c => c.GetInput(repoName, false), Times.Never);
-            userConsole.Verify(c => c.GetInput(jenkinsJob, false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(repoName, false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(jenkinsJob, false), Times.Never);
         }
 
         [Test]
@@ -284,8 +306,8 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(string.Empty);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(string.Empty);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -306,8 +328,8 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(string.Empty);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(string.Empty);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -345,8 +367,8 @@ namespace Jeno.UnitTests
             var args = new string[] { Command, $"repository:{deletedRepository}", deleteOption };
 
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(repoName, false)).Returns(string.Empty);
-            userConsole.Setup(c => c.GetInput(jenkinsJob, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(repoName, false)).Returns(string.Empty);
+            userConsole.Setup(c => c.ReadInput(jenkinsJob, false)).Returns(string.Empty);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(GetDefaultConfiguration()).Object, GetEncryptorMock().Object, userConsole.Object);
 
@@ -378,9 +400,9 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(jenkinsUrlParameterName.ToLower(), false)).Returns(jenkinsUrlParameterValue);
-            userConsole.Setup(c => c.GetInput(userNameParameterName.ToLower(), false)).Returns(userNameParameterValue);
-            userConsole.Setup(c => c.GetInput(tokenParameterName.ToLower(), false)).Returns(tokenParameterValue);
+            userConsole.Setup(c => c.ReadInput(jenkinsUrlParameterName.ToLower(), false)).Returns(jenkinsUrlParameterValue);
+            userConsole.Setup(c => c.ReadInput(userNameParameterName.ToLower(), false)).Returns(userNameParameterValue);
+            userConsole.Setup(c => c.ReadInput(tokenParameterName.ToLower(), false)).Returns(tokenParameterValue);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -392,9 +414,9 @@ namespace Jeno.UnitTests
             Assert.That(configuration.JenkinsUrl, Is.EqualTo(jenkinsUrlParameterValue));
             Assert.That(configuration.UserName, Is.EqualTo(userNameParameterValue));
             Assert.That(configuration.Token, Is.EqualTo(tokenParameterValue));
-            userConsole.Verify(c => c.GetInput(jenkinsUrlParameterName.ToLower(), false), Times.Never);
-            userConsole.Verify(c => c.GetInput(userNameParameterName.ToLower(), false), Times.Never);
-            userConsole.Verify(c => c.GetInput(tokenParameterName.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(jenkinsUrlParameterName.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(userNameParameterName.ToLower(), false), Times.Never);
+            userConsole.Verify(c => c.ReadInput(tokenParameterName.ToLower(), false), Times.Never);
         }
 
         [Test]
@@ -417,9 +439,9 @@ namespace Jeno.UnitTests
 
             var configuration = GetDefaultConfiguration();
             var userConsole = new Mock<IUserConsole>();
-            userConsole.Setup(c => c.GetInput(jenkinsUrlParameterName.ToLower(), false)).Returns(jenkinsUrlParameterValue);
-            userConsole.Setup(c => c.GetInput(userNameParameterName.ToLower(), false)).Returns(userNameParameterValue);
-            userConsole.Setup(c => c.GetInput(tokenParameterName.ToLower(), false)).Returns(tokenParameterValue);
+            userConsole.Setup(c => c.ReadInput(jenkinsUrlParameterName.ToLower(), false)).Returns(jenkinsUrlParameterValue);
+            userConsole.Setup(c => c.ReadInput(userNameParameterName.ToLower(), false)).Returns(userNameParameterValue);
+            userConsole.Setup(c => c.ReadInput(tokenParameterName.ToLower(), false)).Returns(tokenParameterValue);
 
             var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
             var app = new CommandLineApplication();
@@ -431,9 +453,9 @@ namespace Jeno.UnitTests
             Assert.That(configuration.JenkinsUrl, Is.EqualTo(jenkinsUrlParameterValue));
             Assert.That(configuration.UserName, Is.EqualTo(userNameParameterValue));
             Assert.That(configuration.Token, Is.EqualTo(tokenParameterValue));
-            userConsole.Verify(c => c.GetInput(jenkinsUrlParameterName.ToLower(), false), Times.Once);
-            userConsole.Verify(c => c.GetInput(userNameParameterName.ToLower(), false), Times.Once);
-            userConsole.Verify(c => c.GetInput(tokenParameterName.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(jenkinsUrlParameterName.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(userNameParameterName.ToLower(), false), Times.Once);
+            userConsole.Verify(c => c.ReadInput(tokenParameterName.ToLower(), false), Times.Once);
         }
 
         private JenoConfiguration GetDefaultConfiguration()
@@ -474,11 +496,11 @@ namespace Jeno.UnitTests
             return encryptor;
         }
 
-        private Mock<IUserConsole> GetUserConsoleMock(string parameterName, string parameterValue,  bool hideInput = false)
+        private Mock<IUserConsole> GetUserConsoleMock(string parameterName, string parameterValue, bool hideInput = false)
         {
             var userConsole = new Mock<IUserConsole>();
 
-            userConsole.Setup(s => s.GetInput(parameterName, hideInput))
+            userConsole.Setup(s => s.ReadInput(parameterName, hideInput))
                 .Returns(parameterValue);
 
             return userConsole;

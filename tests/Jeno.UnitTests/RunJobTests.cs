@@ -442,7 +442,7 @@ namespace Jeno.UnitTests
             var result = await app.ExecuteAsync(new string[] { Command });
 
             Assert.That(result, Is.EqualTo(JenoCodes.Ok));
-            passwordProvider.Verify(s => s.GetInput("password", true), Times.AtLeastOnce);
+            passwordProvider.Verify(s => s.ReadInput("password", true), Times.AtLeastOnce);
         }
 
         [Test]
@@ -557,7 +557,7 @@ namespace Jeno.UnitTests
         private Mock<IUserConsole> GetUserConsoleMock()
         {
             var passwordProvider = new Mock<IUserConsole>();
-            passwordProvider.Setup(s => s.GetInput("password", true))
+            passwordProvider.Setup(s => s.ReadInput("password", true))
                 .Returns(Password);
 
             return passwordProvider;

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 using Jeno.Interfaces;
 
 namespace Jeno.Services
