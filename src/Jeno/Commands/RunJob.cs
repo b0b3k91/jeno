@@ -63,7 +63,7 @@ namespace Jeno.Commands
                             _configuration.Repository[currentRepo] :
                             _configuration.Repository[_defaulJobKey];
 
-                    var jobUrl = new Uri(baseUrl, $"job/{pipeline}/{jobNumber}/buildWithParameters");
+                    var jobUrl = new Uri(baseUrl, $"{pipeline}/job/{jobNumber}/buildWithParameters");
 
                     if (jobParameters.Values.Count > 0)
                     {
@@ -82,7 +82,7 @@ namespace Jeno.Commands
 
                     var response = await _client.PostAsync(jobUrl, null);
 
-                    if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("No valid crumb"))
+                    if (response.StatusCode == HttpStatusCode.Forbidden)
                     {
                         var password = string.IsNullOrWhiteSpace(_configuration.Password) ?
                             _userConsole.ReadInput("password", true) :

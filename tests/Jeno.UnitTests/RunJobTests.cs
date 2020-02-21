@@ -51,7 +51,7 @@ namespace Jeno.UnitTests
                 .Returns(Task.FromResult(Branch));
 
             var client = new MockHttpMessageHandler();
-            client.When($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters")
+            client.When($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
@@ -100,7 +100,7 @@ namespace Jeno.UnitTests
                 .Returns(Task.FromResult(Branch));
 
             var client = new MockHttpMessageHandler();
-            client.When($"{JenkinsUrl}/job/{exampleJob}/{Branch}/buildWithParameters")
+            client.When($"{JenkinsUrl}/{exampleJob}/job/{Branch}/buildWithParameters")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
@@ -355,7 +355,7 @@ namespace Jeno.UnitTests
             var tokenAuthHeader = new BearerAuthenticationHeader(Token);
 
             var client = new MockHttpMessageHandler();
-            client.Expect($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters")
+            client.Expect($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters")
                 .WithHeaders("Authorization", $"{tokenAuthHeader.Scheme} {tokenAuthHeader.Parameter}")
                 .Respond(request => new HttpResponseMessage
                 {
@@ -365,7 +365,7 @@ namespace Jeno.UnitTests
             client.Expect($"{JenkinsUrl}/crumbIssuer/api/json")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .Respond(CrumbContentType, JsonConvert.SerializeObject(_crumbHeader));
-            client.Expect($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters")
+            client.Expect($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .WithHeaders(_crumbHeader.CrumbRequestField, _crumbHeader.Crumb)
                 .Respond(HttpStatusCode.OK);
@@ -409,7 +409,7 @@ namespace Jeno.UnitTests
             };
 
             var client = new MockHttpMessageHandler();
-            client.Expect($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters")
+            client.Expect($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters")
                 .WithHeaders("Authorization", $"{tokenAuthHeader.Scheme} {tokenAuthHeader.Parameter}")
                 .Respond(request => new HttpResponseMessage
                 {
@@ -419,7 +419,7 @@ namespace Jeno.UnitTests
             client.Expect($"{JenkinsUrl}/crumbIssuer/api/json")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .Respond(CrumbContentType, JsonConvert.SerializeObject(_crumbHeader));
-            client.Expect($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters")
+            client.Expect($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters")
                 .WithHeaders("Authorization", $"{basicAuthHeader.Scheme} {basicAuthHeader.Parameter}")
                 .WithHeaders(_crumbHeader.CrumbRequestField, _crumbHeader.Crumb)
                 .Respond(HttpStatusCode.OK);
@@ -456,7 +456,7 @@ namespace Jeno.UnitTests
             };
 
             var client = new MockHttpMessageHandler();
-            client.Expect($"{JenkinsUrl}/job/{DefaultJob}/{Branch}/buildWithParameters?{string.Join("&", parameters)}")
+            client.Expect($"{JenkinsUrl}/{DefaultJob}/job/{Branch}/buildWithParameters?{string.Join("&", parameters)}")
                 .Respond(HttpStatusCode.OK);
 
             var httpClientFactory = new Mock<IHttpClientFactory>();
