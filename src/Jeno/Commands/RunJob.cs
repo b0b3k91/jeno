@@ -8,6 +8,7 @@ using System.Text;
 using Jeno.Core;
 using Jeno.Infrastructure;
 using Jeno.Interfaces;
+using Jeno.Validators;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -16,16 +17,16 @@ namespace Jeno.Commands
 {
     public class RunJob : IJenoCommand
     {
-        private readonly string _defaulJobKey = "default";
-
-        private readonly IGitClient _gitWrapper;
+        private const string DefaulJobKey = "default";
         private readonly HttpClient _client;
         private readonly JenoConfiguration _configuration;
-        private readonly IUserConsole _userConsole;
         private readonly IEncryptor _encryptor;
+        private readonly IGitClient _gitWrapper;
+        private readonly IUserConsole _userConsole;
+        private readonly ConfigurationValidator _validator = new ConfigurationValidator();
 
-        public string Name => "run";
         public Action<CommandLineApplication> Command { get; }
+        public string Name => "run";
 
         public RunJob(IGitClient gitWrapper, IEncryptor encryptor, IUserConsole userConsole, IHttpClientFactory factory, IOptions<JenoConfiguration> configuration)
         {
@@ -43,10 +44,10 @@ namespace Jeno.Commands
 
                 app.OnExecuteAsync(async token =>
                 {
-                    var validationResult = ValidateConfiguration();
-                    if (!validationResult.IsSuccess)
+                    var validationResult = _validator.Validate(_configuration);
+                    if (!validationResult.IsValid)
                     {
-                        throw new JenoException(validationResult.ErrorMessage);
+                        throw new JenoException(string.Join(Environment.NewLine, validationResult.Errors));
                     }
 
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
@@ -61,17 +62,13 @@ namespace Jeno.Commands
 
                     var pipeline = _configuration.Repository.ContainsKey(currentRepo) ?
                             _configuration.Repository[currentRepo] :
-                            _configuration.Repository[_defaulJobKey];
+                            _configuration.Repository[DefaulJobKey];
 
                     var jobUrl = new Uri(baseUrl, $"{pipeline}/job/{jobNumber}/buildWithParameters");
 
                     if (jobParameters.Values.Count > 0)
                     {
-                        var validateParameters = ValidateJobParameters(jobParameters.Values);
-                        if (!validateParameters.IsSuccess)
-                        {
-                            throw new JenoException(validateParameters.ErrorMessage);
-                        }
+                        ValidateJobParameters(jobParameters.Values);
 
                         var builder = new UriBuilder(jobUrl);
                         builder.Query = string.Join("&", jobParameters.Values);
@@ -113,41 +110,7 @@ namespace Jeno.Commands
             };
         }
 
-        private Result ValidateConfiguration()
-        {
-            var messageBuilder = new StringBuilder();
-
-            if (!Uri.IsWellFormedUriString(_configuration.JenkinsUrl, UriKind.Absolute))
-            {
-                messageBuilder.AppendLine(Messages.IncorrectJenkinsAddress);
-                messageBuilder.AppendLine(Messages.ConfigureJenkinsAddressTip);
-            }
-
-            if (!_configuration.Repository.ContainsKey(_defaulJobKey))
-            {
-                messageBuilder.AppendLine(Messages.MissingDefaultJob);
-                messageBuilder.AppendLine(Messages.ConfigureDefaultJobTip);
-            }
-
-            if (string.IsNullOrEmpty(_configuration.UserName))
-            {
-                messageBuilder.AppendLine(Messages.UndefinedUserName);
-                messageBuilder.AppendLine(Messages.ConfigureUserNameTip);
-            }
-
-            if (string.IsNullOrEmpty(_configuration.Token))
-            {
-                var configurationUrl = new Uri(new Uri(_configuration.JenkinsUrl), $"user/{_configuration.UserName}/configure");
-
-                messageBuilder.AppendLine(Messages.UndefinedToken);
-                messageBuilder.AppendLine($"{Messages.JenkinsConfigurationAddressTip} {configurationUrl.AbsoluteUri}");
-                messageBuilder.AppendLine(Messages.ConfigureTokenTip);
-            }
-
-            return messageBuilder.Length > 0 ? Result.Invalid(messageBuilder.ToString()) : Result.Ok();
-        }
-
-        private Result ValidateJobParameters(IEnumerable<string> parameters)
+        private void ValidateJobParameters(IEnumerable<string> parameters)
         {
             if (parameters.Any(s => !s.Contains("=")))
             {
@@ -157,10 +120,8 @@ namespace Jeno.Commands
                 message.AppendLine(Messages.IncorrectJobParameters);
                 message.AppendLine(invalidParameters);
 
-                return Result.Invalid(message.ToString());
+                throw new JenoException(message.ToString());
             }
-
-            return Result.Ok();
         }
     }
 }

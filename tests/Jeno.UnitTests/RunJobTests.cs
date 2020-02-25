@@ -228,8 +228,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { Command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).Contains("User token is undefined")
-            .And.Property(nameof(JenoException.Message)).Contain($"{JenkinsUrl}/user/{UserName}/configure"));
+            .And.Property(nameof(JenoException.Message)).Contains("User token is undefined"));
         }
 
         [Test]

@@ -150,9 +150,6 @@
   <data name="IncorrectJobParameters" xml:space="preserve">
     <value>Some of job parameters have incorrect format</value>
   </data>
-  <data name="JenkinsConfigurationAddressTip" xml:space="preserve">
-    <value>Token can be generated on</value>
-  </data>
   <data name="JenoDescription" xml:space="preserve">
     <value>Jeno is a command line interface allows to running Jenkins jobs</value>
   </data>

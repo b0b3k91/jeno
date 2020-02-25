@@ -160,15 +160,6 @@ namespace Jeno {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Token can be generated on.
-        /// </summary>
-        internal static string JenkinsConfigurationAddressTip {
-            get {
-                return ResourceManager.GetString("JenkinsConfigurationAddressTip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Jeno is a command line interface allows to running Jenkins jobs.
         /// </summary>
         internal static string JenoDescription {
