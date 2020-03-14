@@ -3,7 +3,6 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-name: Jeno
 image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
 pipelines:
@@ -14,4 +13,4 @@ pipelines:
         script: # Modify the commands below to build your repository.
           - dotnet restore
           - dotnet build
-          - dotnet test --filter "Category!=Encryption"
+          - dotnet test

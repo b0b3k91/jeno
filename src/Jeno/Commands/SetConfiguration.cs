@@ -123,23 +123,14 @@ namespace Jeno.Commands
 
         private string GetSetting(string settingName, string passedValue, bool returnEmpty, bool encrypt = false)
         {
-            if (returnEmpty)
+            return (returnEmpty, encrypt, string.IsNullOrWhiteSpace(passedValue)) switch
             {
-                return string.Empty;
-            }
-
-            if (encrypt)
-            {
-                return string.IsNullOrWhiteSpace(passedValue) ?
-                    _encryptor.Encrypt(_userConsole.ReadInput(settingName, true)) :
-                    _encryptor.Encrypt(passedValue);
-            }
-            else
-            {
-                return string.IsNullOrWhiteSpace(passedValue) ?
-                    _userConsole.ReadInput(settingName) :
-                    passedValue;
-            }
+                (true, _, _) => string.Empty,
+                (false, true, true) => _encryptor.Encrypt(_userConsole.ReadInput(settingName, true)),
+                (false, true, false) => _encryptor.Encrypt(passedValue),
+                (false, false, true) => _userConsole.ReadInput(settingName),
+                (false, false, false) => passedValue,
+            };
         }
     }
 }
