@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.645
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jeno", "src\Jeno\Jeno.csproj", "{DEF174B3-14D7-4056-9E5A-B7FE413E0C82}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jeno.UnitTests", "tests\Jeno.UnitTests\Jeno.UnitTests.csproj", "{E137AEC0-D464-4F20-A2F8-4716DF7FD498}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5331D1F1-9549-4932-B42F-474E9936E3F4}"
+	ProjectSection(SolutionItems) = preProject
+		bitbucket-pipelines.yml = bitbucket-pipelines.yml
+		global.json = global.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
