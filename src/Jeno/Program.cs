@@ -33,10 +33,10 @@ namespace Jeno
                 .AddSingleton<IEncryptor, Encryptor>()
                 .AddSingleton<IGitClient, GitClient>()
                 .AddSingleton<IConfigurationSerializer, ConfigurationSerializer>()
-                .AddTransient<IJenoCommand, RunJob>()
-                .AddTransient<IJenoCommand, SetConfiguration>()
-                .AddTransient<IJenoCommand, ShowHelp>()
-                .AddTransient<IJenoCommand, ShowConfiguration>()
+                .Scan(scan => scan.FromCallingAssembly()
+                                .AddClasses(c => c.AssignableTo<IJenoCommand>())
+                                .AsImplementedInterfaces()
+                                .WithTransientLifetime())
                 .BuildServiceProvider();
 
             var app = new CommandLineApplication
