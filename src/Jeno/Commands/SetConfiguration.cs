@@ -37,25 +37,25 @@ namespace Jeno.Commands
 
                     foreach (var arg in args)
                     {
-                        switch (arg.Item1)
+                        switch(arg)
                         {
-                            case "jenkinsurl":
-                                configuration.JenkinsUrl = GetSetting(arg.Item1, arg.Item2, delete);
+                            case ("jenkinsurl", _):
+                                configuration.JenkinsUrl = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case "username":
-                                configuration.UserName = GetSetting(arg.Item1, arg.Item2, delete);
+                            case ("username", _):
+                                configuration.UserName = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case "token":
-                                configuration.Token = GetSetting(arg.Item1, arg.Item2, delete);
+                            case ("token", _):
+                                configuration.Token = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case "password":
-                                configuration.Password = GetSetting(arg.Item1, arg.Item2, delete, true);
+                            case ("password", _): 
+                                configuration.Password = GetNewSettingValue(arg, delete, true);
                                 break;
 
-                            case "repository":
+                            case ("repository", _):
                                 {
                                     if (string.IsNullOrWhiteSpace(arg.Item2))
                                     {
@@ -105,7 +105,7 @@ namespace Jeno.Commands
 
                             default:
                                 throw new JenoException($"{Messages.UnsupportedSetting}{arg.Item1}");
-                        }
+                        };
                     }
 
                     await _serializer.SaveConfiguration(configuration);
@@ -121,16 +121,15 @@ namespace Jeno.Commands
             return (setting.Split(':').First().ToLower(), string.Join(':', setting.Split(':').Skip(1)));
         }
 
-        private string GetSetting(string settingName, string passedValue, bool returnEmpty, bool encrypt = false)
+        private string GetNewSettingValue((string, string) setting, bool delete, bool encrypt = false)
         {
-            return (returnEmpty, encrypt, string.IsNullOrWhiteSpace(passedValue)) switch
+            if (delete)
             {
-                (true, _, _) => string.Empty,
-                (false, true, true) => _encryptor.Encrypt(_userConsole.ReadInput(settingName, true)),
-                (false, true, false) => _encryptor.Encrypt(passedValue),
-                (false, false, true) => _userConsole.ReadInput(settingName),
-                (false, false, false) => passedValue,
-            };
+                return string.Empty;
+            }
+
+            var value = string.IsNullOrWhiteSpace(setting.Item2) ? _userConsole.ReadInput(setting.Item1, encrypt) : setting.Item2;
+            return encrypt ? _encryptor.Encrypt(value) : value;
         }
     }
 }
