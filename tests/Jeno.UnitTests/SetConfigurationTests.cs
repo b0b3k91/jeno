@@ -218,7 +218,7 @@ namespace Jeno.UnitTests
             var exampleJob = "thirdExampleJob";
 
             var parameter = "repository";
-            var value = $"{exampleRepo}={exampleJob}";
+            var value = $"{exampleRepo}:{exampleJob}";
             var args = new string[] { Command, $"{parameter}:{value}" };
 
             var configuration = GetDefaultConfiguration();
@@ -275,7 +275,7 @@ namespace Jeno.UnitTests
             var exampleJob = "newExampleJob";
 
             var parameter = "repository";
-            var value = $"{exampleRepo}={exampleJob}";
+            var value = $"{exampleRepo}:{exampleJob}";
             var args = new string[] { Command, $"{parameter}:{value}" };
 
             var configuration = GetDefaultConfiguration();
