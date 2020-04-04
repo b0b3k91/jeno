@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jeno.UnitTests", "tests\Jen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5331D1F1-9549-4932-B42F-474E9936E3F4}"
 	ProjectSection(SolutionItems) = preProject
-		bitbucket-pipelines.yml = bitbucket-pipelines.yml
+		.github\workflows\dotnetcore.yml = .github\workflows\dotnetcore.yml
 		global.json = global.json
 	EndProjectSection
 EndProject
