@@ -45,11 +45,11 @@ namespace Jeno
                 Description = Messages.JenoDescription,
             };
 
-            app.OnExecuteAsync(async token =>
+            app.OnExecuteAsync(token =>
             {
                 Console.WriteLine(app.Description);
                 Console.WriteLine(Messages.BasicMessage);
-                return JenoCodes.Ok;
+                return Task.FromResult(JenoCodes.Ok);
             });
 
             var jenoCommands = container.GetServices<IJenoCommand>();

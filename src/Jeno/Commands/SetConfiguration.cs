@@ -37,25 +37,25 @@ namespace Jeno.Commands
 
                     foreach (var arg in args)
                     {
-                        switch(arg)
+                        switch(arg.Item1)
                         {
-                            case ("jenkinsurl", _):
+                            case ("jenkinsurl"):
                                 configuration.JenkinsUrl = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case ("username", _):
+                            case ("username"):
                                 configuration.UserName = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case ("token", _):
+                            case ("token"):
                                 configuration.Token = GetNewSettingValue(arg, delete);
                                 break;
 
-                            case ("password", _): 
+                            case ("password"): 
                                 configuration.Password = GetNewSettingValue(arg, delete, true);
                                 break;
 
-                            case ("repository", _):
+                            case ("repository"):
                                 {
                                     if (string.IsNullOrWhiteSpace(arg.Item2))
                                     {
@@ -71,7 +71,9 @@ namespace Jeno.Commands
                                     if (delete)
                                     {
                                         if (repositories.Any(s => s == "default"))
+                                        {
                                             throw new JenoException(Messages.RemoveDefaultJobException);
+                                        }
 
                                         foreach (var repository in repositories)
                                         {

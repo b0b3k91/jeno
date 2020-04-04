@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Jeno.Core;
 using Jeno.Interfaces;
 using McMaster.Extensions.CommandLineUtils;
@@ -27,10 +28,10 @@ namespace Jeno.Commands
             {
                 app.Description = Messages.ShowConfigurationCommandDescription;
 
-                app.OnExecuteAsync(async token =>
+                app.OnExecuteAsync(token =>
                 {
                     _console.WriteLine(_yamlSerializer.Serialize(_configuration));
-                    return JenoCodes.Ok;
+                    return Task.FromResult(JenoCodes.Ok);
                 });
             };
         }

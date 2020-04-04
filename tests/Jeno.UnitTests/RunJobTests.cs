@@ -121,7 +121,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJenoOutsideRepository_BreakExecution()
+        public void RunJenoOutsideRepository_BreakExecution()
         {
             var gitWrapper = new Mock<IGitClient>();
             gitWrapper.Setup(s => s.IsGitRepository(It.IsAny<string>()))
@@ -154,7 +154,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task MissingUserName_InformAboutIt()
+        public void MissingUserName_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
@@ -193,7 +193,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
+        public void MissingTokenInConfiguration_InformUserAndShowLinkToTokenGenerator()
         {
             var configuration = new JenoConfiguration
             {
@@ -232,7 +232,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJobWithoutDefinedMainUrl_InformAboutIt()
+        public void RunJobWithoutDefinedMainUrl_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
@@ -270,7 +270,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJobWithIncorrectJenkinsUrl_InformAboutIt()
+        public void RunJobWithIncorrectJenkinsUrl_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
@@ -310,7 +310,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task RunJobWithUndefinedDefaultJob_InformAboutIt()
+        public void RunJobWithUndefinedDefaultJob_InformAboutIt()
         {
             var configuration = new JenoConfiguration
             {
@@ -479,7 +479,7 @@ namespace Jeno.UnitTests
         }
 
         [Test]
-        public async Task PassIncorrectJobParameters_InformAboutInvalidParameters()
+        public void PassIncorrectJobParameters_InformAboutInvalidParameters()
         {
             var parameters = new List<string>
             {

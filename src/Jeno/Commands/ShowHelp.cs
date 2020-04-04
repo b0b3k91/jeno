@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Jeno.Core;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -12,10 +13,10 @@ namespace Jeno.Commands
         {
             app.Description = Messages.HelpCommandDescription;
 
-            app.OnExecuteAsync(async token =>
+            app.OnExecuteAsync(token =>
             {
                 app.Parent.ShowHelp();
-                return JenoCodes.Ok;
+                return Task.FromResult(JenoCodes.Ok);
             });
         };
     }
