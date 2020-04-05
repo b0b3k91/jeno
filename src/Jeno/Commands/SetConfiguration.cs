@@ -8,6 +8,11 @@ namespace Jeno.Commands
 {
     public class SetConfiguration : IJenoCommand
     {
+        private const char ParameterNameValueSeparator = ':';
+        private const char RepositoryPipelineSeparator = '=';
+        private const char MultiRepositoriesSeparator = ',';
+        private const string DefaultPipelineKey = "default";
+
         private readonly IConfigurationSerializer _serializer;
         private readonly IEncryptor _encryptor;
         private readonly IUserConsole _userConsole;
@@ -66,11 +71,11 @@ namespace Jeno.Commands
                                         break;
                                     }
 
-                                    var repositories = arg.Item2.Split(',');
+                                    var repositories = arg.Item2.Split(MultiRepositoriesSeparator);
 
                                     if (delete)
                                     {
-                                        if (repositories.Any(s => s == "default"))
+                                        if (repositories.Any(s => s == DefaultPipelineKey))
                                         {
                                             throw new JenoException(Messages.RemoveDefaultJobException);
                                         }
@@ -86,12 +91,12 @@ namespace Jeno.Commands
                                         break;
                                     }
 
-                                    if (repositories.Any(s => !s.Contains('=')))
+                                    if (repositories.Any(s => !s.Contains(RepositoryPipelineSeparator)))
                                     {
                                         throw new JenoException(Messages.WrongReposFormat);
                                     }
 
-                                    var repos = repositories.Select(s => (s.Split('=')[0], s.Split('=')[1]));
+                                    var repos = repositories.Select(s => (s.Split(RepositoryPipelineSeparator)[0], s.Split(RepositoryPipelineSeparator)[1]));
 
                                     if (repos.Select(s => s.Item1).Any(s => string.IsNullOrWhiteSpace(s)))
                                     {
@@ -118,9 +123,11 @@ namespace Jeno.Commands
 
         private (string, string) ParseSetting(string setting)
         {
+            var key = setting.Split(ParameterNameValueSeparator).First().ToLower();
             //only first colon should be treated like separator,
             //others (like the ones in url addresses) must be ignored.
-            return (setting.Split(':').First().ToLower(), string.Join(':', setting.Split(':').Skip(1)));
+            var value = string.Join(ParameterNameValueSeparator, setting.Split(ParameterNameValueSeparator).Skip(1));
+            return (key, value);
         }
 
         private string GetNewSettingValue((string, string) setting, bool delete, bool encrypt = false)
