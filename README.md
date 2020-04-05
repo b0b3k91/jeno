@@ -3,7 +3,7 @@
 
 ## Installation
 
-To install Jeno on your local machine run _*install.ps1*_ script from _*scripts*_ directory.
+To install Jeno on your local machine run _*install.ps1*_ script from _*scripts*_ directory. To remove Jeno from your computer use the same script with `-Unistall` or `-U` parameter.
 
 ## Available commands
 
