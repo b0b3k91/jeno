@@ -1,6 +1,9 @@
 # Jeno
 *Jeno is a CLI allows to running Jenkins jobs from your local machine.*
 
+## Installation
+
+To install Jeno on your local machine run _*install.ps1*_ script from _*scripts*_ directory.
 
 ## Available commands
 

@@ -150,7 +150,7 @@ namespace Jeno.UnitTests
 
             Assert.That(async () => await app.ExecuteAsync(new string[] { Command }), Throws.TypeOf<JenoException>()
             .With.Property(nameof(JenoException.ExitCode)).EqualTo(JenoCodes.DefaultError)
-            .And.Property(nameof(JenoException.Message)).Contains("Current directory is not git repository."));
+            .And.Property(nameof(JenoException.Message)).Contains("Current directory is not a git repository."));
         }
 
         [Test]

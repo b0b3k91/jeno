@@ -120,6 +120,9 @@
   <data name="BasicMessage" xml:space="preserve">
     <value>Use "jeno help" command to get more information</value>
   </data>
+  <data name="CannotSaveConfigurationChangesErrorMessage" xml:space="preserve">
+    <value>Cannot save changes in Jeno configuration. Give permission for any user to saving and modifying appsettings.json file before next try. You can do this in "Security" tab in File Options menu.</value>
+  </data>
   <data name="ChangeConfigurationDescription" xml:space="preserve">
     <value>Set options of app configuration</value>
   </data>
@@ -151,7 +154,7 @@
     <value>Some of job parameters have incorrect format</value>
   </data>
   <data name="JenoDescription" xml:space="preserve">
-    <value>Jeno is a command line interface allows to running Jenkins jobs</value>
+    <value>Jeno is a CLI allows to running Jenkins jobs from your local machine</value>
   </data>
   <data name="JobException" xml:space="preserve">
     <value>Cannot run job: </value>
@@ -162,10 +165,10 @@
   <data name="MissingRepoName" xml:space="preserve">
     <value>Some of passed repositories have undefined name</value>
   </data>
-  <data name="NotGitRepo" xml:space="preserve">
-    <value>Current directory is not git repository.</value>
+  <data name="NotGitRepoError" xml:space="preserve">
+    <value>Current directory is not a git repository.</value>
   </data>
-  <data name="RemoveDefaultJobException" xml:space="preserve">
+  <data name="RemoveDefaultJobError" xml:space="preserve">
     <value>Cannot remove default job</value>
   </data>
   <data name="RunJobArgumentsDescription" xml:space="preserve">
