@@ -54,7 +54,7 @@ namespace Jeno.Commands
 
                     if (!await _gitWrapper.IsGitRepository(Directory.GetCurrentDirectory()))
                     {
-                        throw new JenoException(Messages.NotGitRepo);
+                        throw new JenoException(Messages.NotGitRepoError);
                     }
 
                     var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());

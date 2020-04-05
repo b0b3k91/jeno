@@ -70,6 +70,15 @@ namespace Jeno {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot save changes in Jeno configuration. Give permission for any user to saving and modifying appsettings.json file before next try. You can do this in &quot;Security&quot; tab in File Options menu..
+        /// </summary>
+        internal static string CannotSaveConfigurationChangesErrorMessage {
+            get {
+                return ResourceManager.GetString("CannotSaveConfigurationChangesErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set options of app configuration.
         /// </summary>
         internal static string ChangeConfigurationDescription {
@@ -196,20 +205,20 @@ namespace Jeno {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current directory is not git repository..
+        ///   Looks up a localized string similar to Current directory is not a git repository..
         /// </summary>
-        internal static string NotGitRepo {
+        internal static string NotGitRepoError {
             get {
-                return ResourceManager.GetString("NotGitRepo", resourceCulture);
+                return ResourceManager.GetString("NotGitRepoError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Cannot remove default job.
         /// </summary>
-        internal static string RemoveDefaultJobException {
+        internal static string RemoveDefaultJobError {
             get {
-                return ResourceManager.GetString("RemoveDefaultJobException", resourceCulture);
+                return ResourceManager.GetString("RemoveDefaultJobError", resourceCulture);
             }
         }
         
