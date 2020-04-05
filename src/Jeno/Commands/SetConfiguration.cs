@@ -77,7 +77,7 @@ namespace Jeno.Commands
                                     {
                                         if (repositories.Any(s => s == DefaultPipelineKey))
                                         {
-                                            throw new JenoException(Messages.RemoveDefaultJobException);
+                                            throw new JenoException(Messages.RemoveDefaultJobError);
                                         }
 
                                         foreach (var repository in repositories)
@@ -115,7 +115,14 @@ namespace Jeno.Commands
                         };
                     }
 
+                    try
+                    {
                     await _serializer.SaveConfiguration(configuration);
+                    }
+                    catch(UnauthorizedAccessException)
+                    {
+                        throw new JenoException(Messages.CannotSaveConfigurationChangesErrorMessage);
+                    }
                     return JenoCodes.Ok;
                 });
             };
