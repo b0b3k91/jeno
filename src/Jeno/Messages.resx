@@ -151,7 +151,7 @@
     <value>Some of job parameters have incorrect format</value>
   </data>
   <data name="JenoDescription" xml:space="preserve">
-    <value>Jeno is a command line interface allows to running Jenkins jobs</value>
+    <value>Jeno is a CLI allows to running Jenkins jobs from your local machine</value>
   </data>
   <data name="JobException" xml:space="preserve">
     <value>Cannot run job: </value>

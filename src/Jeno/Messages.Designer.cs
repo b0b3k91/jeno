@@ -160,7 +160,7 @@ namespace Jeno {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Jeno is a command line interface allows to running Jenkins jobs.
+        ///   Looks up a localized string similar to Jeno is a CLI allows to running Jenkins jobs from your local machine.
         /// </summary>
         internal static string JenoDescription {
             get {
