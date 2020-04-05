@@ -81,6 +81,27 @@ namespace Jeno.UnitTests
         }
 
         [Test]
+        public async Task WriteUserNameSettingInLowerCase_SaveItInConfiguration()
+        {
+            var parameter = "username";
+            var value = "jfKennedy";
+            var args = new string[] { Command, $"{parameter}:{value}" };
+
+            var configuration = GetDefaultConfiguration();
+            var userConsole = GetUserConsoleMock(parameter.ToLower(), value);
+
+            var command = new SetConfiguration(GetConfigurationSerializerMock(configuration).Object, GetEncryptorMock().Object, userConsole.Object);
+            var app = new CommandLineApplication();
+            app.Command(command.Name, command.Command);
+
+            var code = await app.ExecuteAsync(args);
+
+            Assert.That(code, Is.EqualTo(JenoCodes.Ok));
+            Assert.That(configuration.UserName, Is.EqualTo(value));
+            userConsole.Verify(c => c.ReadInput(parameter.ToLower(), false), Times.Never);
+        }
+
+        [Test]
         public async Task SetNewUsernameWithoutValue_GetValueFromUserAndSaveItInConfiguration()
         {
             var parameter = "userName";
