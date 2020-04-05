@@ -22,7 +22,7 @@ if($oldPath){
 }
 
 Write-Output "Publish Jeno file in selected location"
-dotnet publish --configuration Release --output $InstallPath
+dotnet publish .\src\Jeno\Jeno.csproj --configuration Release --output $InstallPath /p:DebugType=None
 
 Write-Output "Add Jeno location to environment variables"
 $env:Path += ";$InstallPath"
