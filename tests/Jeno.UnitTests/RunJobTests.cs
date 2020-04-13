@@ -25,10 +25,8 @@ namespace Jeno.UnitTests
         private const string Token = "5om3r4nd0mt0k3n";
         private const string DefaultKey = "default";
         private const string DefaultJob = "defaultJob";
-
         private const string Branch = "master";
         private const string Password = "Qwerty123";
-
         private const string CrumbContentType = "application/json";
 
         private readonly CrumbHeader _crumbHeader = new CrumbHeader
@@ -284,8 +282,6 @@ namespace Jeno.UnitTests
                     { DefaultKey, DefaultJob },
                 }
             };
-
-            var passwordProvider = GetUserConsoleMock();
 
             var client = new MockHttpMessageHandler();
             client.When($"{JenkinsUrl}/job/{DefaultJob}/job/{Branch}/buildWithParameters")

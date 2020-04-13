@@ -17,6 +17,9 @@ Changes Jeno configuration. To set new value of selected parameter write them na
 ##### `jeno config`
 Shows program configuration written in YAML format.
 
+##### `jeno scan`
+Triggers pipeline scanning.
+
 ##### `jeno help`
 Displays all program features.
 
