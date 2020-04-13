@@ -177,6 +177,9 @@
   <data name="RunJobDescription" xml:space="preserve">
     <value>Run job on Jenkins</value>
   </data>
+  <data name="ScanException" xml:space="preserve">
+    <value>Cannot scan pipeline: </value>
+  </data>
   <data name="SettingDescription" xml:space="preserve">
     <value>Save passed settings in app configuration</value>
   </data>

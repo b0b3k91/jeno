@@ -241,6 +241,15 @@ namespace Jeno {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot scan pipeline: .
+        /// </summary>
+        internal static string ScanException {
+            get {
+                return ResourceManager.GetString("ScanException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save passed settings in app configuration.
         /// </summary>
         internal static string SettingDescription {

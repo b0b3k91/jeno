@@ -52,15 +52,14 @@ namespace Jeno.Commands
                     }
 
                     var currentRepo = await _gitWrapper.GetRepoName(Directory.GetCurrentDirectory());
-                    var jobNumber = await _gitWrapper.GetCurrentBranch(Directory.GetCurrentDirectory());
-
+                    
                     var baseUrl = new Uri(_configuration.JenkinsUrl);
 
                     var pipeline = _configuration.Repository.ContainsKey(currentRepo) ?
                             _configuration.Repository[currentRepo] :
                             _configuration.Repository[DefaulJobKey];
 
-                    var pipelineUrl = new Uri(baseUrl, pipeline);
+                    var pipelineUrl = new Uri(baseUrl, $"{pipeline}/build?delay=0");
 
                     _client.DefaultRequestHeaders.Authorization = new BearerAuthenticationHeader(_configuration.Token);
 
@@ -89,7 +88,7 @@ namespace Jeno.Commands
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        throw new JenoException($"{Messages.JobException}: {response.ReasonPhrase}");
+                        throw new JenoException($"{Messages.ScanException}: {response.ReasonPhrase}");
                     }
 
                     return JenoCodes.Ok;
